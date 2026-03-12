@@ -28,8 +28,7 @@ canvas { display: block; }
 
 </style>
 </head>
-</body>
-
+<body>
 <canvas id = "Canvas" width=" 800" height="600"></canvas>
 <button id = "startButton">START GAME </button>
 <script>  
@@ -51,6 +50,21 @@ mouseMoved = true
 })
 
 
+var gamestartTime = Date.now()
+
+
+
+var Circles = [
+    { x: 200, y: 200, radius: 40, number: 1, color: '#4a90d9', spawnTime: 500, hitTime: 1800 },
+    { x: 550, y: 180, radius: 40, number: 2, color: '#4a90d9', spawnTime: 1600, hitTime: 2900 },
+    { x: 350, y: 380, radius: 40, number: 3, color: '#4a90d9', spawnTime: 2700, hitTime: 4000 },
+    { x: 160, y: 340, radius: 40, number: 4, color: '#4a90d9', spawnTime: 3800, hitTime: 5100 },
+    { x: 620, y: 350, radius: 40, number: 5, color: '#4a90d9', spawnTime: 4900, hitTime: 6200 }, 
+]
+
+var activeCircles = []
+
+
 function draw() {
 ctx.clearRect(0,0,800,600)
 
@@ -62,14 +76,73 @@ ctx.fillStyle = '#ffffff'
 ctx.textAlign = 'center'
 ctx.fillText('prosu!', 400, 60)
 
+var now = Date.now() - gamestartTime
+for (var i = 0; i < Circles.length; i++) {
+  var c = Circles[i]
+   if (now >= c.spawnTime && !c.spawned && !c.dead) {
+    c.spawned = true
+activeCircles.push(c)
+}
+}
+
+for (var i = activeCircles.length - 1; i >= 0; i--) {
+  var c = activeCircles[i]
+if (now > c.hitTime + 200) {
+ c.dead = true
+activeCircles.splice(i, 1)
+}
+}
+
+for (var i = 0; i < activeCircles.length; i++) {
+  var c = activeCircles[i]
+
+
+ var t = (now - c.spawnTime) / (c.hitTime - c.spawnTime)
+    if ( t > 1) t=1
+
+ var approachR = c.radius * 3 - (c.radius * 3 - c.radius) * t
+
+ctx.beginPath()
+ctx.arc(c.x, c.y, approachR, 0, Math.PI * 2)
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 2
+ctx.stroke()
+
+ctx.beginPath()
+ctx.arc(c.x, c.y, c.radius, 0, Math.PI * 2)
+ctx.fillStyle = c.color
+ctx.fill()
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 3
+ctx.stroke()
+}
+
+ctx.font = 'bold 24px Arial'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.textBaseline = 'middle'
+ctx.fillText(c.number, c.x, c.y)
+ctx.textBaseline = 'alphabetic'
+
 ctx.beginPath()
 ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
 ctx.strokeStyle = '#ffffff'
 ctx.lineWidth = 2
 ctx.stroke()
 
+ctx.beginPath()
+ctx.moveTo(mouseX - 5, mouseY)
+ctx.lineTo(mouseX + 5, mouseY)
+ctx.moveTo(mouseX, mouseY -5)
+ctx.lineTo(mouseX, mouseY + 5)
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 1
+ctx.stroke()
 requestAnimationFrame(draw)
+
 }
+
+
 
 draw()
 </script>
