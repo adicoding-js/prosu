@@ -52,7 +52,16 @@ mouseMoved = true
 
 var gamestartTime = Date.now()
 
+var score = 0
+var combo = 0
+var hitAnims = []
 
+var jp = []
+var count300 = 0
+var count100 = 0
+var count50 = 0
+var countMiss = 0
+var total = 5
 
 var Circles = [
     { x: 200, y: 200, radius: 40, number: 1, color: '#4a90d9', spawnTime: 500, hitTime: 1800 },
@@ -63,6 +72,60 @@ var Circles = [
 ]
 
 var activeCircles = []
+
+//This was debugged(a bit of code completion as well) With the help of Ai
+
+canvas.addEventListener('mousedown', function(e) {
+var rect = canvas.getBoundingClientRect()
+var scaleX = canvas.width / rect.width
+var scaleY = canvas.height / rect.height
+var clickX = (e.clientX - rect.left) * scaleX
+var clickY = (e.clientY - rect.top) * scaleY
+ 
+for (var i = activeCircles.length - 1; i >= 0; i--) {
+  var c = activeCircles[i]
+  var dx = clickX - c.x
+  var dy = clickY - c.y
+  var dist = Math.sqrt(dx*dx + dy*dy)
+  if (dist <= c.radius) {
+    console.log('hit', c.number)
+
+//this was made by me, previous commit shows what was made with the help of ai
+
+  var now2 = Date.now() - gamestartTime
+var diff = Math.abs(now2 - c.hitTime)
+var judgetxt = ''
+var judgeColor = ''
+
+      if (diff <= 40) {
+            score += 300
+            count300 +=1
+            judgetxt = '300'
+            judgeColor = '#4a90d9' }
+
+      else if ( diff <= 80 ) {
+            score += 100
+            count100 += 1
+            judgetxt = '100'
+            judgeColor = '#57c96e' }
+      else if ( diff <= 120 ) {
+            score += 50
+            count50 += 1
+            judgetxt = '50'
+            judgeColor = '#888888' }
+      else { console.log (HAHAHAHHAHAHAHHAH_TIMING_OVER) }
+
+
+jp.push({ x: c.x, y: c.y, text: judgetxt, color: judgeColor, startTime: Date.now() })
+ 
+   combo += 1
+    hitAnims.push({ x: c.x, y: c.y, radius: c.radius, startTime: Date.now(), type: 'hit' })
+    c.dead = true
+    activeCircles.splice(i, 1)
+    break
+  }
+}
+})
 
 
 function draw() {
@@ -76,6 +139,15 @@ ctx.fillStyle = '#ffffff'
 ctx.textAlign = 'center'
 ctx.fillText('prosu!', 400, 60)
 
+
+ctx.font = 'bold 48px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'left'
+ctx.fillText('score: ' + score, 12, 36)
+
+ctx.font = 'bold 22px Courier'
+ctx.fillText(combo + 'x', 12, 62)
+
 var now = Date.now() - gamestartTime
 for (var i = 0; i < Circles.length; i++) {
   var c = Circles[i]
@@ -88,7 +160,10 @@ activeCircles.push(c)
 for (var i = activeCircles.length - 1; i >= 0; i--) {
   var c = activeCircles[i]
 if (now > c.hitTime + 200) {
- c.dead = true
+ console.log('miss', c.number)
+combo = 0
+hitAnims.push({ x: c.x, y: c.y, radius: c.radius, startTime: Date.now(), type: 'miss'})
+c.dead = true
 activeCircles.splice(i, 1)
 }
 }
@@ -123,6 +198,30 @@ ctx.textAlign = 'center'
 ctx.textBaseline = 'middle'
 ctx.fillText(c.number, c.x, c.y)
 ctx.textBaseline = 'alphabetic'
+
+var nowMs = Date.now()
+for (var i = hitAnims.length - 1; i >= 0; i--) {
+  var a = hitAnims[i]
+  var elapsed = nowMs - a.startTime
+  if (elapsed > 150) {
+    hitAnims.splice(i, 1)
+    continue
+  }
+  var progress = elapsed / 150
+  var alpha = 1 - progress
+  if (a.type == 'hit') {
+    var shrinkR = a.radius * (1 - progress * 0.5)
+    ctx.beginPath()
+    ctx.arc(a.x, a.y, shrinkR, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')'
+    ctx.fill()
+  } else {
+    ctx.beginPath()
+    ctx.arc(a.x, a.y, a.radius, 0, Math.PI * 2)
+    ctx.fillStyle = 'rgba(220,50,50,' + alpha + ')'
+    ctx.fill()
+  }
+}
 
 ctx.beginPath()
 ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
