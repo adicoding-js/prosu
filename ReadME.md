@@ -7,11 +7,11 @@ A Browser based osu type game built in vanilla html/css/js. No Frameworks, no bu
 ## How to Run
 - Either Install/ Download the project or 
 
- - ```git clone https://github.com/adicoding-js/prosu.git
+ - `git clone https://github.com/adicoding-js/prosu.git`
 - And Double click the Index.html
-
-### OR you can go to [Prosuu Official Website](https://prosuu.netlify.app/) ANd Play Directly There ( Updated Every Single Commit )
-
+---
+### OR you can go to [Prosuu Official Website](https://prosuu.netlify.app/) ,Play Directly There ( Updated Every Single Commit )
+---
 ## What's in it So Far!
 - A simple cursor/crosshair that follows your cursor/mouse
 - Some Circles with basic logic integrated into them
