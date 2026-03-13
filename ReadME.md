@@ -1,13 +1,16 @@
-# Prosu!
+# Prosu!❤️‍🔥🔥
 
-A Browser based osu type game built in vanilla html/css/js. No Frameworks, no build tools, just PLAY!!
+A Browser based osu type game built in vanilla html/css/js. No Frameworks, no build tools, just download and PLAY !!!
 
 ---
 
 ## How to Run
 - Either Install/ Download the project or 
 
- - ``` git clone https://github.com/adicoding-js/prosu.git
+ - ```git clone https://github.com/adicoding-js/prosu.git
+- And Double click the Index.html
+
+### OR you can go to [Prosuu Official Website](https://prosuu.netlify.app/) ANd Play Directly There ( Updated Every Single Commit )
 
 ## What's in it So Far!
 - A simple cursor/crosshair that follows your cursor/mouse
@@ -32,7 +35,7 @@ A Browser based osu type game built in vanilla html/css/js. No Frameworks, no bu
 - Score Multipliers
 - Combo Pop
 - (maybe custom audios, with custom beatmaps)
-- Polishing and much moreee
+- Polishing and much moreee!!!!
 
 ---
 
