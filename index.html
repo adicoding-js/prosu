@@ -26,11 +26,39 @@ canvas { display: block; }
 
 #startButton:hover { background: #00f2ff; }
 
+#audioUpload { 
+      margin-top: 10px;
+      color: #cccccc;
+      font-family: Arial;
+      background: #2a2a2a;
+      border: 1px solid #555;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: none;
+      display: block;}
+
+#volumeslider { 
+    margin-top: 8px ;
+    width: 200px;
+    cursor: none;
+    display: block;
+}
+
+#vollabel {
+    color: #888888;
+    font-family: Courier, monospace;
+    font-size: 12px;
+    margin-top: 4px ;
+}
+
 </style>
 </head>
 <body>
 <canvas id = "Canvas" width=" 800" height="600"></canvas>
 <button id = "startButton">START GAME </button>
+<input type = "file" id = "audioUpload" accept="audio/*">
+<input type="range" id="volumeslider" min = "0" max = "1" step="0.01" value="0.8">
+<div id="vollabel">volume:80%</div>
 <script>  
 
 var canvas = document.getElementById('Canvas')
@@ -123,6 +151,62 @@ objects: [
 
 }
 
+var audioCtx = null
+var gainNode = null
+var audioBuffer = null
+var audioSrc = null
+var audioLoaded = false
+var audioStartOffset = 0
+
+document.getElementById('audioUpload').addEventListener('change', function(e)
+{ var file = e.target.files[0]
+if (!file) return 
+var reader = new FileReader()
+reader.onload = function(ev) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+        audioCtx.decodeAudioData(ev.target.result, function (buf) {
+        audioBuffer = buf
+        console.log('audio loaded!!', buf.duration)
+        }, function() {
+            alert('didnt work')
+        }
+)}
+    reader.readAsArrayBuffer(file)
+})
+
+document.getElementById('volumeslider').addEventListener('input', function() {
+    if (gainNode) gainNode.gain.value = this.value
+    document.getElementById('vollabel').textContent = 'volume: ' + Math.round(this.value * 100) + '%'
+})
+
+function startAudio() {
+    if (audioSrc) {
+        try { audioSrc.stop() } catch(err) { console.log('audio already stopped or whatever') }
+        audioSrc = null
+    }
+    audioLoaded = false
+ 
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    audioCtx.resume()
+ 
+    gainNode = audioCtx.createGain()
+    gainNode.gain.value = parseFloat(document.getElementById('volumeslider').value)
+    gainNode.connect(audioCtx.destination)
+ 
+    if (audioBuffer) {
+        audioSrc = audioCtx.createBufferSource()
+        audioSrc.buffer = audioBuffer
+        audioSrc.connect(gainNode)
+        audioSrc.start(0)
+        audioStartOffset = audioCtx.currentTime
+        audioLoaded = true
+        console.log('audio started!!')
+    } else {
+        console.log('no audio file, using silent clock')
+    }
+}
+
+
 canvas.addEventListener('mousedown', function(e) {
 var rect = canvas.getBoundingClientRect()
 var scaleX = canvas.width / rect.width
@@ -187,6 +271,17 @@ if ( cx > 240 && cx < 560 && cy > 495 && cy <535) {
 }
 })
 
+canvas.addEventListener('click', function(e) {
+    if (gamestate != 'results') return
+    var rect = canvas.getBoundingClientRect()
+    var scaleX = canvas.width / rect.width
+    var scaleY = canvas.height / rect.height
+    var cx2 = (e.clientX - rect.left ) * scaleX
+    var cy2 = (e.clientY - rect.top ) * scaleY
+    if (cx2 > 240 && cx2 < 540 && cy2 > 495 && cy2 < 535) {
+      startAudio()
+    }
+})
 
 function loadMap(mapObj) {
 Circles = []
@@ -229,6 +324,14 @@ document.getElementById('startButton').onclick = function() {
     loadMap(map1)
     document.getElementById('startButton').style.display = 'none'
 }
+
+document.getElementById('startButton').addEventListener('click', function() {
+      startAudio()
+      document.getElementById('audioUpload').style.display = 'none'
+      document.getElementById('volumeslider').style.display = 'none'
+      document.getElementById('vollabel').style.display = 'none'
+})
+
 
 function getGrade() {
 var t = count300 * 300 + count100 * 100 + count50 * 50
@@ -301,6 +404,9 @@ ctx.fillStyle = '#ffffff'
 ctx.fillText(accStr, 788, 36) 
 
 var now = Date.now() - gamestartTime
+if (audioLoaded) now = (audioCtx.currentTime - audioStartOffset) * 1000
+
+
 for (var i = 0; i < Circles.length; i++) {
   var c = Circles[i]
    if (now >= c.spawnTime && !c.spawned && !c.dead) {
