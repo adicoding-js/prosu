@@ -57,9 +57,9 @@ var combo = 0
 var hitAnims = []
 
 var jp = []
-//chatgpt help me debug this
+
 var judgementPopups = jp
-//mine from here
+
 var count300 = 0
 var count100 = 0
 var count50 = 0
@@ -76,7 +76,52 @@ var Circles = [
 
 var activeCircles = []
 
-//This was debugged(a bit of code completion as well) With the help of Ai
+var pMs = 800
+var gamestate = 'menu'
+var maxCombo = 0
+var alldone = false
+
+var map1 = { 
+id: 'map_1',
+title: 'prosu pilot!',
+artist: 'adicoding-js',
+bpm: 100,
+audioSrc: null,
+// this took a hell lot of time T_T!
+objects: [
+    { type: 'circle', x: 200, y: 200, time: 2000},
+    { type: 'circle', x: 550, y: 180, time: 2600},
+    { type: 'circle', x: 350, y: 380, time: 3200},
+    { type: 'circle', x: 160, y: 340, time: 4400}, 
+    { type: 'circle', x: 620, y: 350, time: 5000},
+    { type: 'circle', x: 400, y: 150, time: 5600},
+    { type: 'circle', x: 250, y: 420, time: 7000},
+    { type: 'circle', x: 600, y: 280, time: 7600},
+    { type: 'circle', x: 150, y: 200, time: 8200},
+    { type: 'circle', x: 500, y: 400, time: 9600},
+    { type: 'circle', x: 300, y: 300, time: 10200},
+    { type: 'circle', x: 650, y: 180, time: 11600},
+    { type: 'circle', x: 180, y: 450, time: 12200},
+    { type: 'circle', x: 550, y: 320, time: 12800},
+    { type: 'circle', x: 350, y: 150, time: 14200},
+    { type: 'circle', x:200, y: 380, time: 14800},
+    { type: 'circle', x:620, y:420 , time: 15400},
+    { type: 'circle', x:400, y:250 , time: 16000},
+    { type: 'circle', x:150, y:300 , time: 17400},
+    { type: 'circle', x:580, y: 200, time: 18000},
+    { type: 'circle', x:320, y: 450, time: 19400},
+    { type: 'circle', x:680, y:350 , time: 20000},
+    { type: 'circle', x:250, y:150 , time: 20600},
+    { type: 'circle', x:480, y:430 , time: 22000},
+    { type: 'circle', x:150, y: 380, time: 22600},
+    { type: 'circle', x:400, y: 200, time: 23200},
+    { type: 'circle', x:600, y:400 , time: 23800},  
+    { type: 'circle', x:200, y:300 , time: 25200},
+    { type: 'circle', x:500, y:150 , time: 25800},
+    { type: 'circle', x:350, y:430 , time: 26400}
+]
+
+}
 
 canvas.addEventListener('mousedown', function(e) {
 var rect = canvas.getBoundingClientRect()
@@ -118,7 +163,6 @@ var judgeColor = ''
             judgeColor = '#888888' }
       else { console.log ('Too Early') }
 
-
 jp.push({ x: c.x, y: c.y, text: judgetxt, color: judgeColor, startTime: Date.now() })
  
    combo += 1
@@ -130,17 +174,109 @@ jp.push({ x: c.x, y: c.y, text: judgetxt, color: judgeColor, startTime: Date.now
 }
 })
 
+canvas.addEventListener('click', function(e) {
+if (gamestate != 'results') return
+var rect = canvas.getBoundingClientRect()
+var scaleX = canvas.width / rect.width
+var scaleY = canvas.height / rect.height
+var cx = (e.clientX - rect.left) * scaleX
+var cy = (e.clientY - rect.top) * scaleY
+if ( cx > 240 && cx < 560 && cy > 495 && cy <535) {
+  loadMap(map1)
+  document.getElementById('startButton').style.display = 'none'
+}
+})
+
+
+function loadMap(mapObj) {
+Circles = []
+activeCircles = []
+score = 0
+combo = 0
+maxCombo = 0
+count300 = 0
+count100 = 0
+count50 = 0
+countMiss = 0
+hitAnims = []
+jp = []
+judgementPopups = jp
+alldone = false
+
+for (var i = 0; i < mapObj.objects.length; i++) {
+    var obj = mapObj.objects[i]
+    if (obj.type  == 'circle') {
+      Circles.push({
+         x: obj.x,
+         y: obj.y,
+         radius: 40,
+         number: i + 1,
+         color: '#4a90d9',
+         spawnTime: obj.time - pMs,
+         hitTime: obj.time,
+         spawned: false,
+         dead: false
+})
+    }
+}
+
+total = Circles.length
+gamestartTime = Date.now()
+gamestate = 'playing'
+}
+
+document.getElementById('startButton').onclick = function() {
+    loadMap(map1)
+    document.getElementById('startButton').style.display = 'none'
+}
+
+function getGrade() {
+var t = count300 * 300 + count100 * 100 + count50 * 50
+var m = total * 300
+var a = m > 0 ? ( t / m) * 100 : 0
+if( a >= 95) return 'Goated'
+if ( a>= 90) return 'A-Tier Elite'
+if ( a >= 80) return 'B-Tier Average' 
+if ( a >= 70) return 'C-Tier Hobbyist'
+return 'NOOB'
+}
 
 function draw() {
 ctx.clearRect(0,0,800,600)
 
 ctx.fillStyle = '#1a1a1a'
 ctx.fillRect(0,0,800,600)
+if (gamestate == 'results') {
+drawResults()
+requestAnimationFrame(draw)
+return
+}
+
+if (gamestate == 'menu') {
+ctx.font = 'bold 48px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.fillText('prosu!', 400, 200)
+ctx.beginPath()
+ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 2 
+ctx.stroke()
+requestAnimationFrame(draw)
+return
+}
+
+
+
+/*ctx.font = 'bold 48px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.fillText('prosu!', 400, 60)
 
 ctx.font = 'bold 48px Helvetica'
 ctx.fillStyle = '#ffffff'
 ctx.textAlign = 'center'
-ctx.fillText('prosu!', 400, 60)
+ctx.fillText('prosu!', 400, 60)*/
 
 
 ctx.font = 'bold 48px Helvetica'
@@ -275,7 +411,59 @@ ctx.lineWidth = 1
 ctx.stroke()
 requestAnimationFrame(draw)
 
+if ( combo > maxCombo) maxCombo = combo
+
+var alldead = true 
+for ( var ii = 0; ii < Circles.length; ii++) {
+  if (!Circles[ii].dead) { alldead = false; break }
 }
+if (alldead && activeCircles.length == 0 && Circles.length > 0 && !alldone) {
+      alldone = true
+  setTimeout(function() { gamestate = 'results'}, 700 )
+}
+}
+
+
+function drawResults() { 
+ctx.font = 'bold 36px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.fillText(map1.title, 400, 75)
+ctx.font = '18px Courier'
+ctx.fillStyle = '#aaaaaa'
+ctx.fillText('by' + map1.artist, 400, 105)
+ctx.font = 'bold 110px Helvetica'
+ctx.fillStyle = '#4a90d9'
+ctx.fillText(getGrade(), 400, 265)
+ctx.font = 'bold 36px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.fillText('score: ' + score, 400,325)
+
+var th = count300*300 + count100*100 + count50*50
+var mh = total * 300
+var ar = mh > 0 ? (th/mh) * 100 : 100
+
+ctx.fillText('accuracy: ' + ar.toFixed(2) + '%', 400, 362) 
+ctx.fillText('Max Combo: ' + maxCombo + 'x', 400, 399)
+ctx.font = '20px Courier'
+ctx.fillStyle = '#4a90d9'
+ctx.fillText('300: ' + count300, 220, 445)
+ctx.fillStyle = '#57c96e'
+ctx.fillText('100: ' + count100, 340, 445)
+ctx.fillStyle = '#888888'
+ctx.fillText('50: ' + count50, 450, 445)
+ctx.fillStyle = '#e05555'
+ctx.fillText('Miss: ' + countMiss, 57, 445)
+ctx.font = 'bold 24px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.fillText('[ Play Again ]', 400, 520)
+ctx.beginPath()
+ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 2
+ctx.stroke() 
+} 
+
 
 //I FOUND THIS COOL THING/FUNCTION ON STACKOVERFLOW
 
@@ -285,7 +473,7 @@ var g = parseInt(hex.slice(3,5), 16)
 var b = parseInt(hex.slice(5,7), 16)
 return r + ',' + g + ',' + b
 }
-//this was required for readme fix, im sorry, ignore ts
+
 draw()
 </script>
  
