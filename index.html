@@ -109,6 +109,29 @@ var gamestate = 'menu'
 var maxCombo = 0
 var alldone = false
 
+
+var hitRaduis = 40
+var window300 = 40
+var window100 = 80
+var window50 = 120
+var diffLabel = 'Normal'
+
+var diffEasy = { label: 'Easy', radius: 54, preemptMs: 1200, window300: 60, window100: 100, window50: 160 }
+var diffNormal = { label: 'Normal', radius: 40, preemptMs: 800, window300: 45, window100: 80, window50: 130 }
+var diffHard = { label: 'Hard', radius: 27, preemptMs: 500, window300: 30, window100: 55, window50: 100 }
+
+
+function applyDifficulty(d) {
+    hitRaduis = d.radius
+    pMs = d.preemptMs
+    window300 = d.window300
+    window100 = d.window100
+    window50 = d.window50
+    diffLabel = d.label
+}
+
+
+
 var map1 = { 
 id: 'map_1',
 title: 'prosu pilot!',
@@ -330,18 +353,18 @@ var diff = Math.abs(now2 - c.hitTime)
 var judgetxt = ''
 var judgeColor = ''
 
-      if (diff <= 40) {
+      if (diff <= window300) {
             score += 300
             count300 +=1
             judgetxt = '300'
             judgeColor = '#4a90d9' }
 
-      else if ( diff <= 80 ) {
+      else if ( diff <= window100 ) {
             score += 100
             count100 += 1
             judgetxt = '100'
             judgeColor = '#57c96e' }
-      else if ( diff <= 120 ) {
+      else if ( diff <= window50 ) {
             score += 50
             count50 += 1
             judgetxt = '50'
@@ -405,7 +428,7 @@ for (var i = 0; i < mapObj.objects.length; i++) {
       Circles.push({
          x: obj.x,
          y: obj.y,
-         radius: 40,
+         radius: hitRaduis,
          number: i + 1,
          color: '#4a90d9',
          spawnTime: obj.time - pMs,
@@ -504,6 +527,12 @@ ctx.textAlign = 'right'
 ctx.fillStyle = '#ffffff'
 ctx.fillText(accStr, 788, 36) 
 
+
+ctx.font = '13px Courier'
+ctx.fillStyle = diffLabel == 'Hard' ? '#e05555' : diffLabel == 'Easy' ? '#57c96e' : '#aaaaaa'
+ctx.textAlign = 'right'
+ctx.fillText(diffLabel, 788, 56)
+
 var now = Date.now() - gamestartTime
 if (audioLoaded) now = (audioCtx.currentTime - audioStartOffset) * 1000
 
@@ -551,7 +580,6 @@ ctx.fill()
 ctx.strokeStyle = '#ffffff'
 ctx.lineWidth = 3
 ctx.stroke()
-}
 
 ctx.font = 'bold 24px Arial'
 ctx.fillStyle = '#ffffff'
@@ -559,6 +587,7 @@ ctx.textAlign = 'center'
 ctx.textBaseline = 'middle'
 ctx.fillText(c.number, c.x, c.y)
 ctx.textBaseline = 'alphabetic'
+}
 
 var nowMs = Date.now()
 for (var i = hitAnims.length - 1; i >= 0; i--) {
@@ -683,6 +712,7 @@ return r + ',' + g + ',' + b
 
 var maps = [map1, map2, map3]
 var selectedMap = map1
+var selectedDiff = diffNormal
 
 var ssDiv = document.createElement('div')
 ssDiv.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:99;font-family:Arial;color:#fff;box-sizing:border-box;cursor:auto'
@@ -767,23 +797,62 @@ rightPanel.appendChild(rArtist)
 var rInfo = document.createElement('div')
 rInfo.style.cssText = 'font-family:Courier,monospace;font-size:13px;color:#bbb;line-height:2'
 rInfo.innerHTML = 'bpm: ' + selectedMap.bpm + '<br>notes: ' + selectedMap.objects.length + '<br>id: ' + selectedMap.id
-rightPanel.appendChild(rInfo)
+
+var diffRow = document.createElement('div')
+diffRow.style.cssText = 'display:flex;gap:8px;margin-top:22px;margin-bottom:6px'
+
+var diffs = [diffEasy, diffNormal, diffHard]
+
+for (var di = 0; di < diffs.length; di++) {
+    (function(d) {
+        var tab = document.createElement('div')
+
+        var col = d.label == 'Hard' ? '#e05555' :
+                  d.label == 'Easy' ? '#57c96e' :
+                  '#aaaaaa'
+
+        var isActive = selectedDiff.label == d.label
+
+        tab.style.cssText =
+            'padding:6px 14px;cursor:pointer;font-size:13px;font-family:Courier,monospace;border:1px solid ' +
+            col +
+            ';color:' + (isActive ? '#111' : col) +
+            ';background:' + (isActive ? col : 'transparent')
+
+        tab.textContent = d.label
+
+        tab.addEventListener('click', function() {
+            selectedDiff = d
+            buildSongSelect()
+        })
+
+        diffRow.appendChild(tab)
+    })(diffs[di])
+}
+
+rightPanel.appendChild(diffRow)
+
 var spacer = document.createElement('div')
 spacer.style.cssText = 'flex:1'
 rightPanel.appendChild(spacer)
+
 var playBtn = document.createElement('button')
 playBtn.textContent = 'PLAY'
 playBtn.style.cssText = 'background:#4a90d9;color:#fff;border:none;padding:13px 0;font-size:17px;cursor:pointer;width:150px;margin-bottom:10px'
+
 playBtn.addEventListener('click', function() {
   ssDiv.style.display = 'none'
+  applyDifficulty(selectedDiff)
   startAudio()
   loadMap(selectedMap)
 })
+
 rightPanel.appendChild(playBtn)
 
 var backBtn = document.createElement('button')
 backBtn.textContent = 'back'
 backBtn.style.cssText = 'background:transparent;color:#666;border:1px solid #333;padding:8px 0;font-size:13px;cursor:pointer;width:100px'
+
 backBtn.addEventListener('click', function() {
   ssDiv.style.display = 'none'
   document.getElementById('startButton').style.display = 'block'
@@ -791,6 +860,7 @@ backBtn.addEventListener('click', function() {
   document.getElementById('volumeslider').style.display = 'block'
   document.getElementById('vollabel').style.display = 'block'
 })
+
 rightPanel.appendChild(backBtn)
 
 inner.appendChild(leftpanel)
