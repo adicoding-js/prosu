@@ -493,19 +493,6 @@ requestAnimationFrame(draw)
 return
 }
 
-
-
-/*ctx.font = 'bold 48px Helvetica'
-ctx.fillStyle = '#ffffff'
-ctx.textAlign = 'center'
-ctx.fillText('prosu!', 400, 60)
-
-ctx.font = 'bold 48px Helvetica'
-ctx.fillStyle = '#ffffff'
-ctx.textAlign = 'center'
-ctx.fillText('prosu!', 400, 60)*/
-
-
 ctx.font = 'bold 48px Helvetica'
 ctx.fillStyle = '#ffffff'
 ctx.textAlign = 'left'
@@ -738,7 +725,7 @@ function buildSongSelect() {
       if (m.bpm >= 150) borderCol = '#e05555'
       else if (m.bpm >= 130) borderCol = '#d4a017'
       card.style.cssText = 'background:#242424;margin-bottom:8px;padding:12px 14px;cursor:pointer;border-left:4px solid ' + borderCol + ';box-sizing:border-box'
-
+    
 
     var titleEl = document.createElement('div')
     titleEl.style.cssText = 'font-size:15px;font-weight:bold;margin-bottom:4px'
@@ -875,6 +862,188 @@ document.getElementById('startButton').onclick = function() {
   document.getElementById('volumeslider').style.display = 'none'
   document.getElementById('vollabel').style.display = 'none'
 }
+
+var playername = localStorage.getItem('PlayerName') || ''
+
+function getPlayerName() {
+  if (!playername) {
+      playername = prompt('Whats Your Name?') || 'anon'
+      localStorage.setItem('Playername', playername)
+  }
+    return playername
+}
+
+function getRealGrade() {
+    var th = count300*300 + count100*100 + count50*50
+    var mh = total * 300
+    var acc = mh > 0 ? (th/mh)*100 : 100
+    if (acc >= 95) return 'GOATED'
+    if (acc >= 90) return 'A-Tier Elite'
+    if ( acc >= 75) return 'B-Tier Average'
+    if ( acc >= 60) return 'C-Tier Hobbiest'
+return 'Noob'
+}
+
+
+function saveScore(mapId, diff, obj) {
+    var k = 'lb_' + mapId + '_' + diff
+    var list = []
+  try {
+        list = JSON.parse(localStorage.getItem(k)) || []
+  } catch(e) { list = [] }
+    list.push(obj)
+    list.sort(function(a,b){return b.score - a.score })
+    if (list.length > 10) list.length = 10
+    localStorage.setItem(k, JSON.stringify(list))
+}
+
+function getLeaderBoard(mapId, diff) {
+    var k = 'lb_' + mapId + '_' + diff
+    try { 
+        return JSON.parse(localStorage.getItem(k)) || []
+    } catch(e) {return []}
+}
+
+var scoreSaved = false
+var showingLeaderBoard = false
+
+var _origDrawResults = drawResults
+drawResults = function() {
+    _origDrawResults()
+    if (!scoreSaved) {
+      var th2 = count300*300 + count100*100 + count50*50
+      var mh2 = total * 300
+      var acc2 = mh2 > 0 ? (th2/mh2)*100 : 100
+      saveScore(selectedMap.id, selectedDiff.label, {
+        name: getPlayerName(),
+        score: score,
+        accuracy: parseFloat(acc2.toFixed(2)),
+        maxCombo: maxCombo,
+        grade: getRealGrade(),
+        counts: { 300: count300, 100: count100, 50: count50, miss: countMiss},
+        date: new Date().toISOString().slice(0,10)
+      })
+  scoreSaved = true
+    }
+
+ctx.font = 'bold 24px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.fillText('[ LeaderBoard ]', 400, 558)
+if (showingLeaderBoard) drawLeaderBoard()
+}
+
+function drawLeaderBoard() {
+    var entries = getLeaderBoard(selectedMap.id, selectedDiff.label)
+ctx.fillStyle = 'rgba(15,15,15,0.93)'
+ctx.fillRect(60, 45, 680, 500)
+ctx.strokeStyle = '#2a2a2a'
+ctx.lineWidth = 1
+ctx.strokeRect(60,45,680,500)
+
+  ctx.font= 'bold 20px Helvetica'
+ctx.fillStyle = '#ffffff'
+ctx.textAlign = 'center'
+ctx.fillText('leaderboard - ' + selectedMap.title + ' (' + selectedDiff.label + ')', 400, 88)
+
+if (entries.length == 0) {
+    ctx.font = '15px Arial'
+    ctx.fillStyle = '#444444'
+    ctx.fillText('No Scores saved yet', 400, 280)
+}
+
+
+ctx.font = '11px Helvetica'
+ctx.fillStyle = '#444444'
+ctx.textAlign = 'left'
+ctx.fillText('Rank', 80, 118)
+ctx.fillText('Name', 140, 118)
+ctx.fillText('Score', 290, 118)
+ctx.fillText('Acc', 420, 118) 
+ctx.fillText('Combo', 500, 118)
+ctx.fillText('Grade', 585,118)
+ctx.fillText('Date', 640, 118)
+
+
+for ( var li = 0; li < entries.length; li++) {
+    var e2 = entries[li]
+    var ry = 144 + li * 34
+    if (li % 2 == 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.025)'
+        ctx.fillRect(65, ry -13, 670, 30)
+    }
+
+ctx.font = '13px Courier'
+        ctx.fillStyle = li == 0 ? '#f0c040' : li == 1 ? '#cccccc' : li == 2 ? '#cd7f32' : '#555555'
+        ctx.textAlign = 'left'
+        ctx.fillText('#' + (li+1), 80, ry + 6)
+        ctx.fillStyle = '#dddddd'
+        ctx.fillText(e2.name, 140, ry + 6)
+        ctx.fillStyle = '#4a90d9'
+        ctx.fillText(e2.score, 290, ry + 6)
+        ctx.fillStyle = '#aaaaaa'
+        ctx.fillText(e2.accuracy + '%', 420, ry + 6)
+        ctx.fillText(e2.maxCombo + 'x', 500, ry + 6)
+        ctx.fillStyle = e2.grade == 'S' ? '#f0c040' :
+                        e2.grade == 'A' ? '#4a90d9' :
+                        e2.grade == 'B' ? '#57c96e' :
+                        e2.grade == 'C' ? '#888888' : '#e05555'
+        ctx.fillText(e2.grade, 585, ry + 6)
+        ctx.fillStyle = '#555555'
+        ctx.fillText(e2.date, 640, ry + 6)
+    }
+
+ctx.font = 'Bold 16px Helvetica'
+ctx.fillStyle = '#555555'
+ctx.textAlign = 'center'
+ctx.fillText('[ Close ]', 400, 526)
+}
+
+canvas.addEventListener('click', function(e) {
+    if (gamestate != 'results') return 
+    var rect2 = canvas.getBoundingClientRect()
+    var sx2 = canvas.width / rect2.width
+    var sy2 = canvas.height / rect2.height
+    var lx = (e.clientX - rect2.left) * sx2 
+    var ly = (e.clientY - rect2.top) * sy2
+
+    if (!showingLeaderBoard) {
+        if (lx > 240 && lx < 560 && ly > 542 && ly < 572) {
+              showingLeaderBoard = true
+        } 
+    } else { 
+    if (lx > 240 && lx < 560 && ly > 511 && ly < 540) {
+        showingLeaderBoard = false
+}
+    }
+})
+var _originLoadMap = loadMap
+loadMap = function(mapObj) {
+  _originLoadMap(mapObj)
+    scoreSaved = false
+ showingLeaderBoard = false
+}
+
+
+//this is for debugging T_T
+document.addEventListener('keydown', function(e) {
+    if (e.key != '`') return  
+    for (var di = 0; di < Circles.length; di++) {
+        Circles[di].dead = true
+        count300 += 1
+        score += 1
+        combo += 1
+        if (combo > maxCombo) maxCombo = combo
+    }
+
+activeCircles = []
+total = Circles.length
+alldone = true
+setTimeout(function() { gamestate = 'results' }, 100)
+})
+
+
+
 
 draw()
 </script>
