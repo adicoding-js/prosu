@@ -1,3 +1,4 @@
+![Hackatime Badge](https://hackatime-badge.hackclub.com/U0A1XMKQU6S/prosu)
 # Prosu!❤️‍🔥🔥
 
 A Browser based osu type game built in vanilla html/css/js. No Frameworks, no build tools, just download and PLAY !!!
