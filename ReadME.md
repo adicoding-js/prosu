@@ -10,7 +10,7 @@ A Browser based osu type game built in vanilla html/css/js. No Frameworks, no bu
  - `git clone https://github.com/adicoding-js/prosu.git`
 - And Double click the Index.html
 ---
-### OR you can go to [Prosuu Official Website](https://prosuu.netlify.app/) ,Play Directly There ( Updated Every Single Commit )
+### OR you can go to [Prosuu! Official Website](https://prosuu.netlify.app/), Play Directly there (Updated Every Single Commit)
 ---
 ## What's in it So Far!
 - A simple cursor/crosshair that follows your cursor/mouse
@@ -24,14 +24,20 @@ A Browser based osu type game built in vanilla html/css/js. No Frameworks, no bu
 ## Controls / How to play!
 - BRO, Just Click the circles when ring lines up. That's the whole game (😭😭)
 
+## Features:
+- 3 BeatMaps (HardCoded)
+- Start/Ending Screen
+- Difficulty Settings
+- Local LeaderBoard (Only Shown/Saved on Client Side Local Storage)
+- Custom Audio Upload (Not Sync'ed, only playes in Background)
+- More shown on "What's in it so Far!"
+
 ## Known Issues ( In Development right now )
-- Only 5 HardCoded Circles, no real beatmap right now
-- No songs/audios
-- No Start/Ending Screen, game just runs on loading
-- Timing windows are a bit tooo generous😭
+- Only 3 HardCoded Beatmaps
+- No default songs/audios 
 
 ## Plans For Ahead
-- Actual Beatmaps
+- Actual Beatmaps with synced audios
 - Score Multipliers
 - Combo Pop
 - (maybe custom audios, with custom beatmaps)

@@ -1042,7 +1042,236 @@ alldone = true
 setTimeout(function() { gamestate = 'results' }, 100)
 })
 
+var profileDiv = document.createElement('div')
+profileDiv.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:99;font-family:Arial;color:#ffffff;box-sizing:border-box;overflow-y:auto'
+document.body.appendChild(profileDiv)
 
+var profilebutton = document.createElement('button')
+profilebutton.textContent = 'Profile'
+profilebutton.style.cssText = 'margin-top:8px;padding:8px 24px;background:transparent;border:1px solid #444;color:#888;font-family:Arial,Helvetica;font-size:13px;cursor:pointer;display:block'
+document.body.appendChild(profilebutton)
+
+profilebutton.addEventListener('mouseover', function() { profilebutton.style.color = '#ffffff'; profilebutton.style.borderColor = '#888'})
+profilebutton.addEventListener('mouseout', function() { profilebutton.style.color = '#888'; profilebutton.style.borderColor = '#444' })
+
+setInterval(function() {
+    if (document.getElementById('startButton').style.display != 'none') {
+            profilebutton.style.display = 'block'
+    }
+}, 200)
+
+
+
+function getTotalStats() {
+    var t300 = 0, t100 = 0, t50 = 0, tmiss = 0
+    var bestcombo = 0
+    var playsPerMap = {}
+    var diffslist2 = [diffEasy, diffNormal, diffHard]
+
+    for (var mi = 0; mi < maps.length; mi++) {
+        var mm = maps[mi]
+        playsPerMap[mm.id] = 0
+          for (var dii = 0; dii < diffslist2.length; dii++) {
+            var lb2 = getLeaderBoard(mm.id, diffslist2[dii].label)
+              for (var li2 = 0; li2 < lb2.length; li2 ++) {
+                  var ee = lb2[li2]
+                  playsPerMap[mm.id]++
+                  t300 += ee.counts ? ee.counts[300] || 0 : 0
+                  t100 += ee.counts ? ee.counts[100] || 0 : 0
+                  t50 += ee.counts ? ee.counts[50] || 0 : 0
+                  tmiss += ee.counts ? ee.counts.miss || 0 : 0
+                    if (ee.maxCombo > bestcombo) bestcombo = ee.maxCombo
+              }
+          }             
+}
+
+  var allNotes = t300 + t100 + t50 + tmiss
+  var weighted = t300*300 + t100*100 + t50*50
+  var maxP = allNotes * 300
+  var overallAcc2 = maxP > 0? (weighted/ maxP) * 100 : 0
+
+  var mostPlayedTitle = 'none'
+  var mostPlayedCount = 0 
+  for ( var mapId in playsPerMap) {
+      if (playsPerMap[mapId] > mostPlayedCount) {
+          mostPlayedCount = playsPerMap[mapId]
+            for (var mi2 = 0; mi2 < maps.length; mi2++) {
+                  if (maps[mi2].id == mapId) { mostPlayedTitle = maps[mi2].title; break}
+            }
+      }
+  }
+
+    return {
+            t300: t300, t100: t100, t50: t50, tmiss: tmiss,
+            bestcombo: bestcombo ,
+            overallAcc: overallAcc2.toFixed(2),
+            mostplayed: mostPlayedTitle
+    }
+}
+
+function getBestGradesPerMap() {
+        var diffList3 = [diffEasy, diffNormal, diffHard]
+        var out = []
+        for (var mi3 = 0; mi3 < maps.length; mi3++) {
+        var mm2 = maps[mi3]
+        var bestGrade = '-'
+        var bestSc = 0
+        for (var dii2 = 0; dii2 < diffList3.length; dii2++) {
+            var lb3 = getLeaderBoard(mm2.id, diffList3[dii2].label)
+            if (lb3.length > 0 && lb3[0].score > bestSc)  {
+                bestSc = lb3[0].score
+                bestGrade = lb3[0].grade
+            }
+        }
+out.push({ title: mm2.title, grade: bestGrade})
+        } 
+return out
+}
+
+function gradeColor (g) {
+      if (g == 'GOATED') return '#f0c040'
+      if (g == 'A-Tier Elite') return '#4a90d9'  
+      if ( g == 'B-tier Average') return '#57c96e'
+      if ( g == 'C-Tier Hobbiest' || g == 'C-Tier Hobbyist') return '#888888'
+        return '#e05555'
+}
+
+function buildProfileScreen() {
+      profileDiv.innerHTML = ''
+
+      var pname2 = getPlayerName()
+      var stats2 = getTotalStats()
+      var grades2 = getBestGradesPerMap()
+
+      var topbar = document.createElement('div')  
+      topbar.style.cssText = 'padding:20px 28px;border-bottom:1px solid #252525;display:flex;align-items:center;gap:18px'
+
+      var avatarC = document.createElement('canvas')
+      avatarC.width = 60
+      avatarC.height = 60
+      var actx = avatarC.getContext('2d')
+      actx.fillStyle = '#4a90d9'
+      actx.beginPath()
+      actx.arc(30,30,30,0, Math.PI * 2)
+      actx.fill()
+      actx.font = 'bold 28px Helvetica'
+      actx.fillStyle = '#ffffff'
+      actx.textAlign = 'center'
+      actx.textBaseline = 'middle'
+      actx.fillText(pname2[0].toUpperCase(), 30, 30)
+      topbar.appendChild(avatarC)
+
+      var nameWarp = document.createElement('div')
+      var nameHeading = document.createElement('div')
+      nameHeading.style.cssText = 'font-size:20px;font-weight:bold;margin-bottom:5px'
+      nameHeading.textContent = pname2
+      nameWarp.appendChild(nameHeading)
+
+      var editNameButton = document.createElement('span')
+      editNameButton.textContent = 'Edit Name'
+      editNameButton.style.cssText = 'font-size:11px;color:#555;cursor:pointer;font-family:Courier,monospace'
+      editNameButton.addEventListener('mouseover', function() { editNameButton.style.color = '#aaa'})
+      editNameButton.addEventListener('mouseout', function() { editNameButton.style.color = '#555'})
+      editNameButton.addEventListener('click', function() {
+          var newname = prompt('Enter New Name')
+          if (newname && newname.trim() != '') {
+              playername = newname.trim()
+              localStorage.setItem('PlayerName', playername)
+              buildProfileScreen()
+          }
+      })
+        nameWarp.appendChild(editNameButton)
+        topbar.appendChild(nameWarp)
+        profileDiv.appendChild(topbar)
+
+        var cols = document.createElement('div')
+        cols.style.cssText = 'display:flex;width:100%;min-height:calc(100vh - 140px)'
+
+        var leftCol2 = document.createElement('div')
+        leftCol2.style.cssText = 'width:50%;padding:24px 28px;box-sizing:border-box;border-right:1px solid #252525'
+
+        var statsHeading = document.createElement('div')
+        statsHeading.style.cssText = 'font-size:12px;letter-spacing:2px;color:#444;font-family:Courier,monospace;margin-bottom:18px'
+        statsHeading.textContent = 'LIFETIME STATS'
+        leftCol2.appendChild(statsHeading)
+
+        var rows2 = [
+            ['300s', stats2.t300],
+            ['100s', stats2.t100],
+            ['50s', stats2.t50],
+            ['Misses', stats2.tmiss],
+            ['Overall Acc', stats2.overallAcc + '%'],
+            ['Highest Combo', stats2.bestcombo + 'x'],
+            ['Most Played', stats2.mostplayed]
+]
+
+    for (var ri = 0; ri < rows2.length; ri++) {
+        var row2 = document.createElement('div')
+        row2.style.cssText = 'display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #1f1f1f;font-size:13px'
+        var rlabel = document.createElement('span')
+        rlabel.style.cssText = 'color:#555;font-family:Courier,monospace'
+        rlabel.textContent = rows2[ri] [0]
+        var rval = document.createElement('span')
+        rval.style.color = '#cccccc'
+        rval.textContent = rows2[ri][1]
+        row2.appendChild(rlabel)
+        row2.appendChild(rval)
+        leftCol2.appendChild(row2)
+    }
+    cols.appendChild(leftCol2)
+
+      var rightCol2 = document.createElement('div')
+      rightCol2.style.cssText = 'width:50%;padding:24px 28px;box-sizing:border-box'
+var gradesHeading = document.createElement('div')
+gradesHeading.style.cssText = 'font-size:12px;letter-spacing:2px;color:#444;font-family:Courier,monospace;margin-bottom:18px'
+gradesHeading.textContent = 'BEST GRADES'
+rightCol2.appendChild(gradesHeading)
+for (var gi = 0; gi < grades2.length; gi++) {
+var gcard = document.createElement('div')
+gcard.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:10px 14px;margin-bottom:6px;background:#212121'
+var gtitle = document.createElement('span')
+gtitle.style.cssText = 'font-size:13px;color:#aaa'
+gtitle.textContent = grades2[gi].title 
+var ggrade = document.createElement('span')
+        ggrade.style.cssText = 'font-size:16px;font-weight:bold;font-family:Courier,monospace'
+        ggrade.style.color = gradeColor(grades2[gi].grade)
+        ggrade.textContent = grades2[gi].grade == '-' ? '-' : grades2[gi].grade.split('-')[0].trim()
+        gcard.appendChild(gtitle)
+        gcard.appendChild(ggrade)
+        rightCol2.appendChild(gcard)
+}
+
+cols.appendChild(rightCol2)
+profileDiv.appendChild(cols)
+
+var footer2 = document.createElement('div')
+footer2.style.cssText = 'padding:20px 28px'
+var backbutton3 = document.createElement('button')
+backbutton3.textContent = 'Back'
+backbutton3.style.cssText = 'background:transparent;color:#555;border:1px solid #333;padding:8px 22px;font-size:13px;cursor:pointer;font-family:Arial'
+backbutton3.addEventListener('mouseover', function() { backbutton3.style.color = '#aaa' })
+backbutton3.addEventListener('mouseout', function() { backbutton3.style.color = '#555'})
+backbutton3.addEventListener('click', function() {
+      profileDiv.style.display = 'none'
+      document.getElementById('startButton').style.display = 'block'
+      document.getElementById('audioUpload').style.display = 'block'
+      document.getElementById('volumeslider').style.display = 'block'
+      document.getElementById('vollabel').style.display = 'block'
+      profilebutton.style.display = 'block'
+})
+footer2.appendChild(backbutton3)
+profileDiv.appendChild(footer2)
+}
+
+profilebutton.addEventListener('click', function() {
+      buildProfileScreen()
+      profileDiv.style.display = 'block'
+      profilebutton.style.display = 'none'
+      document.getElementById('startButton').style.display = 'none'
+      document.getElementById('audioUpload').style.display = 'none'
+      document.getElementById('volumeslider').style.display = 'none'
+      document.getElementById('vollabel').style.display = 'none'
+})
 
 
 draw()
