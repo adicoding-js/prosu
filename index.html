@@ -1274,6 +1274,133 @@ profilebutton.addEventListener('click', function() {
 })
 
 
+var skinDefault = {
+    name: 'Default',
+    bg: '#1a1a1a',
+    circleColor: '#ffffff',
+    circleBorder: '#ffffff',
+    cursorColor: '#ffffff',
+    judgement300: '#4a90d9',
+    judgement100: '#57c96e',
+    judgement50: '#888888',
+    judgementMiss: '#e05555'
+}
+
+
+var skinPixel = {
+    name: 'Pixel',
+    bg: '#0d1a0d',
+    circleColor: '#39ff14',
+    circleBorder: '#39ff14',
+    cursorColor: '#39ff14',
+    judgement300: '#39ff14',
+    judgement100: '#a0e060',
+    judgement50: '#446644',
+    judgementMiss: '#ff0044'
+}
+
+var skinMinimal = {
+    name: 'Minimal',
+    bg: '#000000',
+    circleColor: 'rgba(0,0,0,0)',
+    circleBorder: '#ffffff',
+    cursorColor: '#ffffff',
+    judgement300: '#aaaaaa',
+    judgement100: '#aaaaaa',
+    judgement50: '#444444',
+    judgementMiss: '#ff3333'
+}
+
+var skinWarm = {
+    name: 'Warm',
+    bg: '#1c1208',
+    circleColor: '#e07830',
+    circleBorder: '#f5c077',
+    cursorColor: '#f5c077',
+    judgement300: '#e07830',
+    judgement100: '#c0a060',
+    judgement50: '#887060',
+    judgementMiss: 'cc2222'
+}
+
+var allskins = [ skinDefault, skinPixel, skinMinimal, skinWarm]
+var activeSkin = skinDefault
+
+
+var _savedSkinName = localStorage.getItem('activeSkin')
+if (_savedSkinName) {
+    for (var _ssi = 0; _ssi < allskins.length; _ssi++) {
+        if (allskins[_ssi].name == _savedSkinName) { activeSkin = allskins[_ssi]; break }
+    }
+}
+
+var _realfillrect = ctx.fillRect.bind(ctx)
+ctx.fillRect = function(x,y,w,h) {
+    if (x == 0 && w == 800 && h == 600) ctx.fillStyle = activeSkin.bg
+    _realfillrect(x,y,w,h)
+}
+
+var _loadMapPreskin = loadMap
+loadMap = function(mapObj) {
+      _loadMapPreskin(mapObj)
+        for (var _ci2 = 0; _ci2 < Circles.length; _ci2++) Circles[_ci2].color = activeSkin.circleColor
+}
+
+var _drawPreSkin = draw
+draw = function() {
+    _drawPreSkin()
+    if(activeSkin.cursorColor != '#ffffff') {
+      ctx.beginPath()
+      ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
+      ctx.strokeStyle = activeSkin.cursorColor
+      ctx.lineWidth = 2
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(mouseX -5, mouseY); ctx.lineTo(mouseX + 5, mouseY)
+      ctx.moveTo(mouseX, mouseY - 5); ctx.lineTo(mouseX, mouseY +5)
+      ctx.strokeStyle = activeSkin.cursorColor
+      ctx.lineWidth = 1; ctx.stroke()
+    }
+}
+
+var skinRowDiv = document.createElement('div')
+skinRowDiv.style.cssText = 'margin-top:10px;display:flex;gap:8px;align-items:center'
+var skinLabelEl = document.createElement('span')
+skinLabelEl.style.cssText = 'color:#555;font-family:Courier,monospace;font-size:11px;margin-right:2px'
+skinLabelEl.textContent = 'skin:'
+skinRowDiv.appendChild(skinLabelEl)
+document.body.appendChild(skinRowDiv)
+
+
+function buildSkinSwatches() {
+    while (skinRowDiv.children.length > 1) skinRowDiv.removeChild(skinRowDiv.lastChild)
+    for (var _sk2 = 0; _sk2 < allskins.length; _sk2++) {
+        (function(sk) {
+          var swatch = document.createElement('div')
+          var isActive = activeSkin.name == sk.name
+          swatch.style.cssText = 'width:30px;height:30px;background:' + sk.bg + ';border:2px solid ' + (isActive ? '#ffffff' : '#2e2e2e') + ';cursor:pointer;position:relative;box-sizing:border-box'
+          var innerDot = document.createElement('div')
+          innerDot.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:13px;height:13px;border-radius:50%;background:' + sk.circleColor + ';border:1px solid ' + sk.circleBorder
+          swatch.appendChild(innerDot)
+          swatch.title = sk.name
+          swatch.addEventListener('click', function() {
+                  activeSkin = sk     
+                  localStorage.setItem('activeSkin', sk.name)
+                    buildSkinSwatches()
+          })
+
+            swatch.addEventListener('mouseover', function () { if (activeSkin.name != sk.name) swatch.style.borderColor = '#666'})
+            swatch.addEventListener('mouseout', function() { if (activeSkin.name != sk.name) swatch.style.borderColor = '#2e2e2e'})
+            skinRowDiv.appendChild(swatch)
+        }) (allskins[_sk2])
+    }
+}
+buildSkinSwatches()
+
+setInterval(function() {
+    skinRowDiv.style.display = document.getElementById('startButton').style.display == 'none' ? 'none' : 'flex'
+}, 200)
+
 draw()
 </script>
  
