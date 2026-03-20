@@ -1818,6 +1818,50 @@ map4.objects.push(
     { type:'spinner', time:16000, endTime:18500 }
 )
 
+var ComboSounds = []
+for (var _cs16 = 1; _cs16 <=5; _cs16++) {
+    var _csa = new Audio('assets/combo' + _cs16 + '.mp3')
+    _csa.volume = 0.7
+    ComboSounds.push(_csa)
+}
+
+var winSound = new Audio('assets/win.mp3')
+winSound.volume = 0.85
+var _winPlayed = false
+
+function playComboSound(c) {
+    var idx = c >= 5 ? 4 : c -1
+    if (idx < 0) return
+    ComboSounds[idx].currentTime = 0
+    ComboSounds[idx].play().catch(function() {})
+}
+
+var _prevCombo16 = 0
+var _drawPre16 = draw
+draw = function() {
+        _drawPre16()
+        if (gamestate == 'playing' && combo > _prevCombo16 && jp.length > 0 && (jp[jp.length-1].text == '300' || jp[jp.length-1].text == '100'))  {
+        playComboSound(combo)
+    }
+        _prevCombo16 = combo
+if (gamestate == 'results' && !_winPlayed) {
+        var _g16 = getRealGrade()
+        if (_g16 == 'GOATED' || _g16 == 'A-Tier Elite') {
+        winSound.currentTime = 0
+        winSound.play().catch(function() {} )
+        }
+_winPlayed = true
+}
+}
+
+
+var _lm16 = loadMap
+loadMap = function(mapObj) {
+            _lm16(mapObj)
+            _prevCombo16 = 0
+            _winPlayed = false
+}
+
 
 draw()
 </script>
