@@ -1571,6 +1571,254 @@ loadMap = function(mapObj) {
     }
 }
 
+var spinnersPending = [] 
+
+var activeSpinners = [] 
+var _spinLastAngle = null 
+var _spinTotalRot = 0 
+var _spinActive = false 
+
+document.addEventListener('mousemove', function(emv2) { 
+    if (!_spinActive || gamestate != 'playing') return 
+    var rmv2 = canvas.getBoundingClientRect() 
+    var sxmv2 = canvas.width / rmv2.width 
+    var symv2 = canvas.height / rmv2.height 
+    var mxmv2 = (emv2.clientX - rmv2.left) * sxmv2 
+    var mymv2 = (emv2.clientY - rmv2.top) * symv2 
+    var angmv2 = Math.atan2(mymv2 - 300, mxmv2 - 400) 
+    if (_spinLastAngle !== null) { 
+        var deltamv2 = angmv2 - _spinLastAngle 
+        if (deltamv2 > Math.PI) deltamv2 -= Math.PI * 2 
+        if (deltamv2 < -Math.PI) deltamv2 += Math.PI * 2 
+        _spinTotalRot += Math.abs(deltamv2) 
+    } 
+    _spinLastAngle = angmv2 
+}) 
+
+var _drawPreSpinner = draw 
+draw = function() { 
+    _drawPreSpinner() 
+    if (gamestate != 'playing') return 
+    var _spNow2 = Date.now() - gamestartTime 
+    if (audioLoaded) _spNow2 = (audioCtx.currentTime - audioStartOffset) * 1000 
+
+    for (var _spi2 = spinnersPending.length - 1; _spi2 >= 0; _spi2--) { 
+        if (_spNow2 >= spinnersPending[_spi2].spawnTime) { 
+            activeSpinners.push(spinnersPending[_spi2]) 
+            spinnersPending.splice(_spi2, 1) 
+        } 
+    } 
+
+    _spinActive = activeSpinners.length > 0 
+
+    if (activeSpinners.length > 0 || spinnersPending.length > 0) { 
+        alldone = false 
+        if (gamestate == 'results') gamestate = 'playing' 
+    } 
+
+    for (var _sai2 = activeSpinners.length - 1; _sai2 >= 0; _sai2--) { 
+        var _sp2 = activeSpinners[_sai2] 
+
+        if (!_sp2.trackingStarted) { 
+            _sp2.trackingStarted = true 
+            _spinLastAngle = null 
+            _spinTotalRot = 0 
+        } 
+
+        var _spReqRot2 = (_sp2.endTime - _sp2.time) / 1000 * 3 
+        var _spReqAngle2 = _spReqRot2 * Math.PI * 2 
+        var _spProgress2 = Math.min(_spinTotalRot / _spReqAngle2, 1) 
+
+        if (!_sp2.cleared && _spinTotalRot >= _spReqAngle2) { 
+            _sp2.cleared = true 
+            score += 300 
+            count300 += 1 
+            combo += 1 
+            if (combo > maxCombo) maxCombo = combo 
+            jp.push({ x: 400, y: 300, text: '300', color: '#4a90d9', startTime: Date.now() }) 
+        } 
+
+        if (_sp2.cleared) { 
+            var _extraRot2 = _spinTotalRot - _spReqAngle2 
+            var _extraFull2 = Math.floor(_extraRot2 / (Math.PI * 2)) 
+            if (_extraFull2 > (_sp2.lastBonus || 0)) { 
+                score += 1000 
+                _sp2.lastBonus = _extraFull2 
+                jp.push({ x: 400, y: 240, text: '+1000', color: '#f0c040', startTime: Date.now() }) 
+            } 
+        } 
+
+        if (_spNow2 >= _sp2.endTime) { 
+            if (!_sp2.cleared) { combo = 0 } 
+            activeSpinners.splice(_sai2, 1) 
+            _spinActive = false 
+            _spinLastAngle = null 
+            _spinTotalRot = 0 
+            var _allcd2 = true 
+            for (var _cdii2 = 0; _cdii2 < Circles.length; _cdii2++) { 
+                if (!Circles[_cdii2].dead) { _allcd2 = false; break } 
+            } 
+            if (_allcd2 && activeCircles.length == 0 && spinnersPending.length == 0 && activeSpinners.length == 0 && !alldone) { 
+                alldone = true 
+                setTimeout(function() { gamestate = 'results' }, 700) 
+            } 
+            continue 
+        } 
+
+        ctx.beginPath() 
+        ctx.arc(400, 300, 160, 0, Math.PI * 2) 
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)' 
+        ctx.lineWidth = 14 
+        ctx.stroke() 
+
+        ctx.beginPath() 
+        ctx.arc(400, 300, 160, -Math.PI / 2, -Math.PI / 2 + _spProgress2 * Math.PI * 2) 
+        ctx.strokeStyle = _sp2.cleared ? '#f0c040' : '#4a90d9' 
+        ctx.lineWidth = 14 
+        ctx.stroke() 
+
+        ctx.font = 'bold 22px Courier' 
+        ctx.fillStyle = 'rgba(255,255,255,0.55)' 
+        ctx.textAlign = 'center' 
+        ctx.textBaseline = 'middle' 
+        ctx.fillText(_sp2.cleared ? 'CLEAR!' : 'SPIN!', 400, 300) 
+        ctx.textBaseline = 'alphabetic' 
+
+        var _tLeft2 = Math.max(0, (_sp2.endTime - _spNow2) / (_sp2.endTime - _sp2.time)) 
+        ctx.fillStyle = 'rgba(255,255,255,0.1)' 
+        ctx.fillRect(200, 445, 400, 5) 
+        ctx.fillStyle = _tLeft2 > 0.3 ? '#57c96e' : '#e05555' 
+        ctx.fillRect(200, 445, 400 * _tLeft2, 5) 
+    } 
+} 
+
+var _loadMapSpinner2 = loadMap 
+loadMap = function(mapObj) { 
+    _loadMapSpinner2(mapObj) 
+    spinnersPending = [] 
+    activeSpinners = [] 
+    _spinLastAngle = null 
+    _spinTotalRot = 0 
+    _spinActive = false 
+    for (var _spoi2 = 0; _spoi2 < mapObj.objects.length; _spoi2++) { 
+        var _spobj2 = mapObj.objects[_spoi2] 
+        if (_spobj2.type == 'spinner') { 
+            spinnersPending.push({ 
+                type: 'spinner', 
+                time: _spobj2.time, 
+                endTime: _spobj2.endTime, 
+                spawnTime: _spobj2.time - pMs, 
+                cleared: false, 
+                trackingStarted: false, 
+                lastBonus: 0 
+            }) 
+            total += 1 
+        } 
+    } 
+} 
+
+map3.objects.push( 
+    { type: 'spinner', time: 16500, endTime: 19500 } 
+)
+
+
+var _origSTO = window.setTimeout
+window.setTimeout = function(fn, ms) {
+    if (ms === 700) {
+        var _ffn = fn
+        return _origSTO(function() {
+            if (spinnersPending.length > 0 || activeSpinners.length > 0 || slidersPending.length > 0 || activeSliders.length > 0) { alldone = false; return }
+            _ffn()
+        }, 700)
+    }
+    return _origSTO.apply(this, arguments)
+}
+
+map2.objects = [
+    { type:'circle', x:120, y:280, time:1000 },
+    { type:'circle', x:185, y:300, time:1375 },
+    { type:'circle', x:255, y:278, time:1750 },
+    { type:'circle', x:320, y:300, time:2125 },
+    { type:'circle', x:390, y:278, time:2500 },
+    { type:'circle', x:455, y:300, time:2875 },
+    { type:'circle', x:520, y:278, time:3250 },
+    { type:'circle', x:590, y:300, time:3625 },
+    { type:'circle', x:620, y:155, time:4375 },
+    { type:'circle', x:555, y:180, time:4750 },
+    { type:'circle', x:490, y:205, time:5125 },
+    { type:'circle', x:425, y:230, time:5500 },
+    { type:'circle', x:360, y:255, time:5875 },
+    { type:'circle', x:295, y:230, time:6250 },
+    { type:'circle', x:230, y:205, time:6625 },
+    { type:'circle', x:165, y:180, time:7000 },
+    { type:'circle', x:340, y:200, time:7750 },
+    { type:'circle', x:395, y:235, time:8125 },
+    { type:'circle', x:340, y:270, time:8500 },
+    { type:'circle', x:395, y:305, time:8875 },
+    { type:'circle', x:340, y:340, time:9250 },
+    { type:'circle', x:395, y:375, time:9625 },
+    { type:'circle', x:340, y:410, time:10000 },
+    { type:'circle', x:395, y:445, time:10375 },
+    { type:'slider', x:180, y:150, endX:620, endY:150, time:11125, duration:600, repeats:1 },
+    { type:'circle', x:600, y:200, time:12000 },
+    { type:'circle', x:565, y:235, time:12375 },
+    { type:'circle', x:600, y:270, time:12750 },
+    { type:'circle', x:565, y:305, time:13125 },
+    { type:'circle', x:600, y:340, time:13500 },
+    { type:'circle', x:565, y:375, time:13875 },
+    { type:'circle', x:600, y:410, time:14250 },
+    { type:'circle', x:565, y:445, time:14625 },
+    { type:'slider', x:620, y:470, endX:180, endY:470, time:15375, duration:600, repeats:1 },
+    { type:'circle', x:175, y:400, time:16125 },
+    { type:'circle', x:210, y:365, time:16500 },
+    { type:'circle', x:175, y:330, time:16875 },
+    { type:'circle', x:210, y:295, time:17250 },
+    { type:'slider', x:250, y:250, endX:600, endY:140, time:18000, duration:700, repeats:2 },
+    { type:'spinner', time:19200, endTime:21700 }
+]
+
+map3.objects = [
+    { type:'circle', x:150, y:420, time:1000 },
+    { type:'circle', x:650, y:120, time:1857 },
+    { type:'circle', x:150, y:120, time:2714 },
+    { type:'circle', x:650, y:420, time:3571 },
+    { type:'circle', x:400, y:270, time:4428 },
+    { type:'circle', x:120, y:140, time:5286 },
+    { type:'circle', x:680, y:440, time:6143 },
+    { type:'circle', x:400, y:100, time:7000 },
+    { type:'circle', x:150, y:460, time:7857 },
+    { type:'circle', x:680, y:200, time:8714 },
+    { type:'circle', x:300, y:460, time:9571 },
+    { type:'circle', x:600, y:100, time:10428 },
+    { type:'circle', x:120, y:300, time:11286 },
+    { type:'circle', x:680, y:300, time:12143 },
+    { type:'circle', x:250, y:180, time:13000 },
+    { type:'circle', x:550, y:400, time:13428 },
+    { type:'circle', x:250, y:400, time:13857 },
+    { type:'circle', x:550, y:180, time:14286 },
+    { type:'circle', x:400, y:100, time:14714 },
+    { type:'circle', x:400, y:460, time:15143 },
+    { type:'circle', x:120, y:280, time:15571 },
+    { type:'circle', x:680, y:280, time:16000 },
+    { type:'slider', x:150, y:200, endX:650, endY:200, time:17000, duration:800, repeats:1 },
+    { type:'slider', x:650, y:400, endX:150, endY:400, time:19000, duration:700, repeats:2 },
+    { type:'slider', x:350, y:130, endX:500, endY:440, time:21000, duration:900, repeats:1 },
+    { type:'spinner', time:22500, endTime:25500 }
+]
+
+map1.objects.push({ type:'spinner', time:27500, endTime:30000 })
+
+map4.objects.push(
+    { type:'circle', x:400, y:300, time:1000 },
+    { type:'circle', x:200, y:200, time:1600 },
+    { type:'circle', x:600, y:400, time:3200 },
+    { type:'circle', x:200, y:400, time:5100 },
+    { type:'circle', x:600, y:200, time:11200 },
+    { type:'circle', x:400, y:150, time:13200 },
+    { type:'spinner', time:16000, endTime:18500 }
+)
+
+
 draw()
 </script>
  
