@@ -330,56 +330,49 @@ function startAudio() {
     }
 }
 
+canvas.addEventListener('mousedown', function(e3) {
+    if (gamestate != 'playing') return
+    var r3 = canvas.getBoundingClientRect()
+    var sx3 = canvas.width / r3.width
+    var sy3 = canvas.height / r3.height
+    var cx3 = (e3.clientX - r3.left) * sx3
+    var cy3 = (e3.clientY - r3.top) * sy3
 
-canvas.addEventListener('mousedown', function(e) {
-var rect = canvas.getBoundingClientRect()
-var scaleX = canvas.width / rect.width
-var scaleY = canvas.height / rect.height
-var clickX = (e.clientX - rect.left) * scaleX
-var clickY = (e.clientY - rect.top) * scaleY
- 
-for (var i = activeCircles.length - 1; i >= 0; i--) {
-  var c = activeCircles[i]
-  var dx = clickX - c.x
-  var dy = clickY - c.y
-  var dist = Math.sqrt(dx*dx + dy*dy)
-  if (dist <= c.radius) {
-    console.log('hit', c.number)
+    for (var i = activeCircles.length - 1; i >= 0; i--) {
+        var c = activeCircles[i]
+        var dx = cx3 - c.x
+        var dy = cy3 - c.y
+        if (Math.sqrt(dx*dx + dy*dy) <= c.radius) {
+            var now2 = Date.now() - gamestartTime
+            var diff = Math.abs(now2 - c.hitTime)
+            var judgetxt = ''
+            var judgeColor = ''
+            if (diff <= window300) { score += 300; count300 += 1; judgetxt = '300'; judgeColor = '#4a90d9' }
+            else if (diff <= window100) { score += 100; count100 += 1; judgetxt = '100'; judgeColor = '#57c96e' }
+            else if (diff <= window50) { score += 50; count50 += 1; judgetxt = '50'; judgeColor = '#888888' }
+            else { console.log('too early') }
+            jp.push({ x: c.x, y: c.y, text: judgetxt, color: judgeColor, startTime: Date.now() })
+            combo += 1
+            hitAnims.push({ x: c.x, y: c.y, radius: c.radius, startTime: Date.now(), type: 'hit' })
+            c.dead = true
+            activeCircles.splice(i, 1)
+            break
+        }
+    }
 
-//this was made by me, previous commit shows what was made with the help of ai
-
-  var now2 = Date.now() - gamestartTime
-var diff = Math.abs(now2 - c.hitTime)
-var judgetxt = ''
-var judgeColor = ''
-
-      if (diff <= window300) {
-            score += 300
-            count300 +=1
-            judgetxt = '300'
-            judgeColor = '#4a90d9' }
-
-      else if ( diff <= window100 ) {
-            score += 100
-            count100 += 1
-            judgetxt = '100'
-            judgeColor = '#57c96e' }
-      else if ( diff <= window50 ) {
-            score += 50
-            count50 += 1
-            judgetxt = '50'
-            judgeColor = '#888888' }
-      else { console.log ('Too Early') }
-
-jp.push({ x: c.x, y: c.y, text: judgetxt, color: judgeColor, startTime: Date.now() })
- 
-   combo += 1
-    hitAnims.push({ x: c.x, y: c.y, radius: c.radius, startTime: Date.now(), type: 'hit' })
-    c.dead = true
-    activeCircles.splice(i, 1)
-    break
-  }
-}
+    for (var _shi = activeSliders.length - 1; _shi >= 0; _shi--) {
+        var _shl = activeSliders[_shi]
+        if (_shl.hit) continue
+        var _sdx = cx3 - _shl.x
+        var _sdy = cy3 - _shl.y
+        if (Math.sqrt(_sdx*_sdx + _sdy*_sdy) <= hitRaduis) {
+            _shl.hit = true
+            _shl.holdStartTime = Date.now()
+            hitAnims.push({ x: _shl.x, y: _shl.y, radius: hitRaduis, startTime: Date.now(), type: 'hit' })
+            jp.push({ x: _shl.x, y: _shl.y, text: '300', color: '#4a90d9', startTime: Date.now() })
+            break
+        }
+    }
 })
 
 canvas.addEventListener('click', function(e) {
@@ -1395,11 +1388,188 @@ function buildSkinSwatches() {
         }) (allskins[_sk2])
     }
 }
+var _drawPreSlider = draw
+draw = function() {
+    _drawPreSlider()
+    if (gamestate != 'playing') return
+    var _sNow = Date.now() - gamestartTime
+    if (audioLoaded) _sNow = (audioCtx.currentTime - audioStartOffset) * 1000
+    for (var _spi = slidersPending.length - 1; _spi >= 0; _spi--) {
+        if (_sNow >= slidersPending[_spi].spawnTime) {
+            activeSliders.push(slidersPending[_spi])
+            slidersPending.splice(_spi, 1)
+        }
+    }
+    for (var _asi = activeSliders.length - 1; _asi >= 0; _asi--) {
+        var _asl = activeSliders[_asi]
+        if (!_asl.hit && _sNow > _asl.time + window50) {
+            combo = 0
+            countMiss += 1
+            jp.push({ x: _asl.x, y: _asl.y, text: 'MISS', color: '#e05555', startTime: Date.now() })
+            hitAnims.push({ x: _asl.x, y: _asl.y, radius: hitRaduis, startTime: Date.now(), type: 'miss' })
+            activeSliders.splice(_asi, 1)
+            continue
+        }
+        if (_asl.hit && !_asl.released) {
+            var oneRepeatTime = _asl.duration / _asl.repeats
+            var totalElapsed = Date.now() - _asl.holdStartTime
+            var repsDone = Math.floor(totalElapsed / oneRepeatTime)
+            if (repsDone >= _asl.repeats) {
+                score += 300
+                count300 += 1
+                combo += 1
+                if (combo > maxCombo) maxCombo = combo
+                var endpX = _asl.repeats % 2 == 0 ? _asl.x : _asl.endX
+                var endpY = _asl.repeats % 2 == 0 ? _asl.y : _asl.endY
+                jp.push({ x: endpX, y: endpY, text: '300', color: '#4a90d9', startTime: Date.now() })
+                hitAnims.push({ x: endpX, y: endpY, radius: hitRaduis, startTime: Date.now(), type: 'hit' })
+                _asl.released = true
+                _asl.dead = true
+                activeSliders.splice(_asi, 1)
+                continue
+            }
+            var segProgress = (totalElapsed % oneRepeatTime) / oneRepeatTime
+            _asl.dir = repsDone % 2 == 0 ? 1 : -1
+            if (_asl.dir == -1) segProgress = 1 - segProgress
+            _asl.ballProgress = segProgress
+        }
+        ctx.beginPath()
+        ctx.moveTo(_asl.x, _asl.y)
+        ctx.lineTo(_asl.endX, _asl.endY)
+        ctx.strokeStyle = 'rgba(74,144,217,0.3)'
+        ctx.lineWidth = hitRaduis * 2
+        ctx.lineCap = 'round'
+        ctx.stroke()
+        ctx.lineCap = 'butt'
+        if (!_asl.hit) {
+            var _sat = (_sNow - _asl.spawnTime) / (_asl.time - _asl.spawnTime)
+            if (_sat > 1) _sat = 1
+            ctx.beginPath()
+            ctx.arc(_asl.x, _asl.y, hitRaduis * 3 - (hitRaduis * 3 - hitRaduis) * _sat, 0, Math.PI * 2)
+            ctx.strokeStyle = '#ffffff'
+            ctx.lineWidth = 2
+            ctx.stroke()
+        }
+        ctx.beginPath()
+        ctx.arc(_asl.x, _asl.y, hitRaduis, 0, Math.PI * 2)
+        ctx.fillStyle = activeSkin.circleColor
+        ctx.fill()
+        ctx.strokeStyle = activeSkin.circleBorder
+        ctx.lineWidth = 3
+        ctx.stroke()
+        ctx.beginPath()
+        ctx.arc(_asl.endX, _asl.endY, hitRaduis * 0.65, 0, Math.PI * 2)
+        ctx.strokeStyle = '#ffffff'
+        ctx.lineWidth = 2
+        ctx.stroke()
+        if (_asl.repeats > 1) {
+            ctx.font = 'bold 16px Arial'
+            ctx.fillStyle = '#ffffff'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText('>', _asl.endX, _asl.endY)
+            ctx.textBaseline = 'alphabetic'
+        }
+        if (_asl.hit) {
+            var ballX = _asl.x + (_asl.endX - _asl.x) * _asl.ballProgress
+            var ballY = _asl.y + (_asl.endY - _asl.y) * _asl.ballProgress
+            ctx.beginPath()
+            ctx.arc(ballX, ballY, hitRaduis * 0.7, 0, Math.PI * 2)
+            ctx.fillStyle = '#ffffff'
+            ctx.fill()
+            ctx.strokeStyle = activeSkin.circleBorder
+            ctx.lineWidth = 2
+            ctx.stroke()
+        }
+    }
+}
 buildSkinSwatches()
 
 setInterval(function() {
     skinRowDiv.style.display = document.getElementById('startButton').style.display == 'none' ? 'none' : 'flex'
 }, 200)
+
+var mouseHeld = false
+document.addEventListener('mousedown', function() { mouseHeld = true })
+document.addEventListener('mouseup', function() {
+    mouseHeld = false
+    for (var _sui = activeSliders.length - 1; _sui >= 0; _sui--) {
+        var _susl = activeSliders[_sui]
+        if (_susl.hit && !_susl.released) {
+            _susl.released = true
+            _susl.dead = true
+            score += 50
+            count50 += 1
+            combo += 1
+            if (combo > maxCombo) maxCombo = combo
+            jp.push({ x: _susl.x, y: _susl.y, text: '50', color: '#888888', startTime: Date.now() })
+            activeSliders.splice(_sui, 1)
+        }
+    }
+})
+
+var slidersPending = []
+var activeSliders = []
+
+map1.objects.push(
+    { type: 'slider', x: 180, y: 200, endX: 580, endY: 200, time: 6500, duration: 700, repeats: 1 },
+    { type: 'slider',x: 580, y: 400, endX: 180, endY: 400, time: 14000, duration: 700, repeats: 2 },
+    { type: 'slider', x: 300, y: 150, endX: 500, endY: 430, time: 21000, duration: 800, repeats: 1 }
+)
+
+map2.objects.push(
+    { type: 'slider', x: 250, y: 180, endX: 530, endY: 180, time: 4800, duration: 600, repeats: 1 },
+    { type: 'slider', x: 530, y: 350, endX: 200, endY: 350, time: 9200, duration: 600, repeats: 1 },
+    { type: 'slider', x: 300, y: 150, endX: 550, endY: 400, time: 13500, duration: 700, repeats: 1 }
+)
+
+map3.objects.push(
+    { type: 'slider', x: 160, y: 200, endX: 600, endY: 200, time: 4900, duration: 800, repeats: 1 },
+    { type: 'slider',x: 600, y: 420, endX: 180, endY: 420, time: 9100, duration: 700, repeats: 2 },
+    { type: 'slider', x:380, y: 150, endX: 380, endY: 440, time: 13600, duration: 750, repeats: 1 }
+)
+
+var map4 = {
+  id: 'map_4',
+  title: 'slider test',
+  artist: 'adicoding-js',
+  bpm: 100,
+  audioSrc: null,
+  objects: [
+    { type: 'slider', x: 200, y: 300, endX: 600, endY: 300, time: 2000, duration: 800, repeats: 1 },
+    { type: 'slider', x: 600, y: 200, endX: 200, endY: 200, time: 4000, duration: 800, repeats: 2 },
+    { type: 'slider', x: 200, y: 180, endX: 600, endY: 420, time: 6000, duration: 1000, repeats: 1 },
+    { type: 'slider', x: 400, y: 150, endX: 400, endY: 450, time: 8000, duration: 900, repeats: 2 },
+    { type: 'slider', x: 150, y: 400, endX: 650, endY: 400, time: 10000, duration: 700, repeats: 1 },
+    { type: 'slider', x: 600, y: 150, endX: 150, endY: 420, time: 12000, duration: 800, repeats: 3 },
+    { type: 'slider', x: 300, y: 300, endX: 550, endY: 150, time: 14000, duration: 1000, repeats: 1 }
+  ]
+}
+maps.push(map4)
+
+var _loadMapSlider = loadMap
+loadMap = function(mapObj) {
+    _loadMapSlider(mapObj)
+    slidersPending = []
+    activeSliders = []
+    for (var _soi = 0; _soi < mapObj.objects.length; _soi++) {
+        var _sobj = mapObj.objects[_soi]
+        if (_sobj.type == 'slider') {
+            slidersPending.push({
+                x: _sobj.x, y: _sobj.y,
+                endX: _sobj.endX, endY: _sobj.endY,
+                time: _sobj.time,
+                duration: _sobj.duration,
+                repeats: _sobj.repeats || 1,
+                spawnTime: _sobj.time - pMs,
+                hit: false, dead: false, released: false,
+                holdStartTime: null,
+                ballProgress: 0, dir: 1
+            })
+            total += 1
+        }
+    }
+}
 
 draw()
 </script>
