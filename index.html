@@ -130,17 +130,13 @@ function applyDifficulty(d) {
     diffLabel = d.label
 }
 
-
-
 var map1 = { 
 id: 'map_1',
 title: 'prosu pilot!',
 artist: 'adicoding-js',
 bpm: 100,
 audioSrc: null,
-// this took a hell lot of time T_T!
-objects: [
-    { type: 'circle', x: 200, y: 200, time: 2000},
+objects: [{ type: 'circle', x: 200, y: 200, time: 2000},
     { type: 'circle', x: 550, y: 180, time: 2600},
     { type: 'circle', x: 350, y: 380, time: 3200},
     { type: 'circle', x: 160, y: 340, time: 4400}, 
@@ -171,7 +167,6 @@ objects: [
     { type: 'circle', x:500, y:150 , time: 25800},
     { type: 'circle', x:350, y:430 , time: 26400}
 ]
-
 }
 
 var map2 = {
@@ -179,49 +174,9 @@ var map2 = {
   title: 'stream machine',
   artist: 'adicoding-js',
   bpm: 160,
+  audioFile: 'assets/map2.mp3',
   audioSrc: null,
-  objects: [
-    {type: 'circle', x: 350, y: 280, time: 1000},
-    {type: 'circle', x: 390,y: 300, time: 1375},
-    {type: 'circle', x: 370, y: 260,time: 1750},
-    {type: 'circle', x: 410, y: 290, time: 2125},
-    {type: 'circle',x: 355, y: 310, time: 2500},
-    {type: 'circle', x: 395, y: 270, time: 2875},
-    {type: 'circle', x: 365,y: 300, time: 3250},
-    {type: 'circle', x: 405, y: 280, time: 3625},
-    {type: 'circle', x: 360, y: 260, time: 4000},
-    {type: 'circle', x: 400,y: 295, time: 4375},
-    {type: 'circle', x: 375, y: 315, time: 4750},
-    {type: 'circle', x: 415, y: 275,time: 5125},
-    {type: 'circle', x: 345, y: 285, time: 5500},
-    {type: 'circle',x: 385, y: 305, time: 5875},
-    {type: 'circle', x: 370, y: 265, time: 6250},
-    {type: 'circle', x: 410,y: 290, time: 6625},
-    {type: 'circle', x: 350, y: 300, time: 7000},
-    {type: 'circle', x: 390, y: 270, time: 7375},
-    {type: 'circle', x: 420,y: 310, time: 7750},
-    {type: 'circle', x: 360, y: 285,time: 8125},
-    {type: 'circle', x: 400, y: 260, time: 8500},
-    {type: 'circle',x: 375, y: 305, time: 8875},
-    {type: 'circle', x: 355, y: 275, time: 9250},
-    {type: 'circle', x: 395,y: 295, time: 9625},
-    {type: 'circle', x: 380, y: 315, time: 10000},
-    {type: 'circle', x: 415, y: 270,time: 10375},
-    {type: 'circle', x: 350, y: 290, time: 10750},
-    {type: 'circle',x: 390, y: 280, time: 11125},
-    {type: 'circle', x: 365, y: 260, time: 11500},
- {type: 'circle', x: 405,y: 300, time: 11875},
-    {type: 'circle', x: 375, y: 285, time: 12250},
-    {type: 'circle', x: 410, y: 310,time: 12625},
-    {type: 'circle', x: 355, y: 270, time: 13000},
-    {type: 'circle',x: 395, y: 295, time: 13375},
-    {type: 'circle', x: 370, y: 315, time: 13750},
-    {type: 'circle', x: 400,y: 265, time: 14125},
-    {type: 'circle', x: 360, y: 290, time: 14500},
-    {type: 'circle', x: 385,y: 275, time: 14875},
-    {type: 'circle', x: 420, y: 300, time: 15250},
-    {type: 'circle', x: 350, y: 280,time: 15625}
-  ]
+  objects: []
 }
 
 var map3 = {
@@ -229,49 +184,9 @@ var map3 = {
   title: 'jump king',
   artist: 'adicoding-js',
   bpm: 140,
+  audioFile: 'assets/map3.mp3',
   audioSrc: null,
-  objects: [
-    { type: 'circle', x: 350, y: 280, time: 1000},
-    { type: 'circle', x: 390, y: 300, time: 1375},
-    { type: 'circle', x: 370, y: 260, time: 1750},
-    { type: 'circle', x: 410, y: 290, time: 2125},
-    { type: 'circle', x: 355, y: 310, time: 2500},
-    { type: 'circle', x: 395, y: 270, time: 2875},
-    { type: 'circle', x: 365, y: 300, time: 3250},
-    { type: 'circle', x: 405, y: 280, time: 3625},
-    { type: 'circle', x: 360, y: 260, time: 4000},
-    { type: 'circle', x: 400, y: 295, time: 4375},
-    { type: 'circle', x: 375, y: 315, time: 4750},
-    { type: 'circle', x: 415, y: 275, time: 5125},
-    { type: 'circle', x: 345, y: 285, time: 5500},
-    { type: 'circle', x: 385, y: 305, time: 5875},
-    { type: 'circle', x: 370, y: 265, time: 6250},
-    { type: 'circle', x: 410, y: 290, time: 6625},
-    { type: 'circle', x: 350, y: 300, time: 7000},
-    { type: 'circle', x: 390, y: 270, time: 7375},
-    { type: 'circle', x: 420, y: 310, time: 7750},
-    { type: 'circle', x: 360, y: 285, time: 8125},
-    { type: 'circle', x: 400, y: 260, time: 8500},
-    { type: 'circle', x: 375, y: 305, time: 8875},
-    { type: 'circle', x: 355, y: 275, time: 9250},
-    { type: 'circle', x: 395, y: 295, time: 9625},
-    { type: 'circle', x: 380, y: 315, time: 10000},
-    { type: 'circle', x: 415, y: 270, time: 10375},
-    { type: 'circle', x: 350, y: 290, time: 10750},
-    { type: 'circle', x: 390, y: 280, time: 11125},
-    { type: 'circle', x: 365, y: 260, time: 11500},
-    { type: 'circle', x: 405, y: 300, time: 11875},
-    { type: 'circle', x: 375, y: 285, time: 12250},
-    { type: 'circle', x: 410, y: 310, time: 12625},
-    { type: 'circle', x: 355, y: 270, time: 13000},
-    { type: 'circle', x: 395, y: 295, time: 13375},
-    { type: 'circle', x: 370, y: 315, time: 13750},
-    { type: 'circle', x: 400, y: 265, time: 14125},
-    { type: 'circle', x: 360, y: 290, time: 14500},
-    { type: 'circle', x: 385, y: 275, time: 14875},
-    { type: 'circle', x: 420, y: 300, time: 15250},
-    { type: 'circle', x: 350, y: 280, time: 15625}
-  ]
+  objects: []
 }
 
 
@@ -821,10 +736,38 @@ playBtn.textContent = 'PLAY'
 playBtn.style.cssText = 'background:#4a90d9;color:#fff;border:none;padding:13px 0;font-size:17px;cursor:pointer;width:150px;margin-bottom:10px'
 
 playBtn.addEventListener('click', function() {
-  ssDiv.style.display = 'none'
-  applyDifficulty(selectedDiff)
-  startAudio()
-  loadMap(selectedMap)
+    if (playBtn.textContent == 'LOADING...') return
+
+    if (selectedMap.audioFile) {
+        playBtn.textContent = 'LOADING...'
+        fetch(selectedMap.audioFile)
+            .then(function(res) { return res.arrayBuffer() })
+            .then(function(buf) {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+                audioCtx.decodeAudioData(buf, function(decoded) {
+                    audioBuffer = decoded
+                    playBtn.textContent = 'PLAY'
+                    ssDiv.style.display = 'none'
+                    applyDifficulty(selectedDiff)
+                    startAudio()
+                    loadMap(selectedMap)
+                })
+            })
+            .catch(function(err) {
+                console.log('Failed to load map audio:', err)
+                playBtn.textContent = 'PLAY'
+                ssDiv.style.display = 'none'
+                applyDifficulty(selectedDiff)
+                audioBuffer = null
+                startAudio()
+                loadMap(selectedMap)
+            })
+    } else {
+        ssDiv.style.display = 'none'
+        applyDifficulty(selectedDiff)
+        startAudio()
+        loadMap(selectedMap)
+    }
 })
 
 rightPanel.appendChild(playBtn)
@@ -1270,7 +1213,7 @@ profilebutton.addEventListener('click', function() {
 var skinDefault = {
     name: 'Default',
     bg: '#1a1a1a',
-    circleColor: '#ffffff',
+    circleColor: '#4a90d9',
     circleBorder: '#ffffff',
     cursorColor: '#ffffff',
     judgement300: '#4a90d9',
@@ -1862,6 +1805,211 @@ loadMap = function(mapObj) {
             _winPlayed = false
 }
 
+var pauseOpen = false
+var _pausedAt = 0
+var _pauseLastFrame = Date.now()
+
+var pauseDiv = document.createElement('div')
+pauseDiv.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:999;background:rgba(0,0,0,0.82);font-family:Arial'
+document.body.appendChild(pauseDiv)
+
+var _pauseLogoImg = new Image()
+_pauseLogoImg.src = 'assets/prosu_logo.png'
+
+function buildPauseMenu() {
+    pauseDiv.innerHTML = ''
+
+    var inner = document.createElement('div')
+    inner.style.cssText = 'display:flex;align-items:center;justify-content:center;width:100%;height:100%;gap:120px'
+
+    var logoWrap = document.createElement('canvas')
+    logoWrap.width = 280
+    logoWrap.height = 280
+    logoWrap.style.cssText = 'border-radius:50%;flex-shrink:0;box-shadow:0 0 40px 10px rgba(30, 163, 255, 0.4);border:6px solid #fff;background:#1ea3ff;'
+    var lctx = logoWrap.getContext('2d')
+    lctx.beginPath()
+    lctx.arc(140, 140, 140, 0, Math.PI * 2)
+    lctx.fillStyle = '#0096ff'
+    lctx.fill()
+    lctx.save()
+    lctx.clip()
+    try { lctx.drawImage(_pauseLogoImg, 0, 0, 280, 280) } catch(e) {}
+    lctx.restore()
+    inner.appendChild(logoWrap)
+
+    var btnWrap = document.createElement('div')
+    btnWrap.style.cssText = 'display:flex;flex-direction:column;gap:12px;width:320px'
+
+    var opts = [
+    { label: 'Resume', bgStart: '#30aeff', bgEnd: '#007be6', icon: '▶' },
+    { label: 'Restart', bgStart: '#229df5', bgEnd: '#006dcf', icon: '↻' },
+    { label: 'Song Select', bgStart: '#1a91db', bgEnd: '#005fb8', icon: '♫' },
+    { label: 'Settings', bgStart: '#1587ce', bgEnd: '#0051a1', icon: '⚙' },
+    { label: 'Exit', bgStart: '#e52d27', bgEnd: '#b31217', icon: '✖' } 
+]
+
+    for (var _pbi = 0; _pbi < opts.length; _pbi++) {
+        (function(opt) {
+            var btn = document.createElement('div')
+            btn.style.cssText = 'position:relative;height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;cursor:pointer;transition:transform 0.2s ease;'
+
+            var bg = document.createElement('div')
+            bg.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;transform:skewX(-20deg);border-radius:8px;z-index:-1;box-shadow:-4px 4px 15px rgba(0,0,0,0.4);background:linear-gradient(90deg,' + opt.bgStart + ',' + opt.bgEnd + ');transition:filter 0.2s;'
+            btn.appendChild(bg)
+
+            var label = document.createElement('span')
+            label.style.cssText = 'font-size:26px;font-weight:300;color:#ffffff;letter-spacing:0.5px;position:relative;z-index:1;'
+            label.textContent = opt.label
+            btn.appendChild(label)
+
+            var iconArea = document.createElement('div')
+            iconArea.style.cssText = 'font-size:18px;color:#ffffff;opacity:0.8;position:relative;z-index:1;'
+            iconArea.textContent = opt.icon
+            btn.appendChild(iconArea)
+
+            btn.addEventListener('mouseover', function() {
+                btn.style.transform = 'scale(1.02) translateX(-10px)'
+                bg.style.filter = 'brightness(1.2)'
+            })
+            btn.addEventListener('mouseout', function() {
+                btn.style.transform = 'scale(1) translateX(0px)'
+                bg.style.filter = 'brightness(1)'
+            })
+
+            btn.addEventListener('click', function() {
+                if (opt.label == 'Resume') {
+                    pauseOpen = false
+                    pauseDiv.style.display = 'none'
+                    if (!audioLoaded) gamestartTime += Date.now() - _pausedAt
+                    if (audioCtx) audioCtx.resume()
+                } else if (opt.label == 'Restart') {
+                    pauseOpen = false
+                    pauseDiv.style.display = 'none'
+                    if (audioCtx) audioCtx.resume()
+                    loadMap(selectedMap)
+                    startAudio()
+                } else if (opt.label == 'Song Select') {
+                    pauseOpen = false
+                    pauseDiv.style.display = 'none'
+                    if (audioSrc) { try { audioSrc.stop() } catch(e) {} }
+                    if (audioCtx) audioCtx.resume()
+                    gamestate = 'menu'
+                    buildSongSelect()
+                    ssDiv.style.display = 'flex'
+                } else if (opt.label == 'Settings') {
+                    buildSettingsPanel()
+} else if (opt.label == 'Exit') {
+        pauseOpen = false
+        pauseDiv.style.display = 'none'
+        if (audioSrc) { try { audioSrc.stop() } catch(e) {} }
+        if (audioCtx) audioCtx.resume()
+        gamestate = 'menu'
+        score = 0
+        combo = 0
+        document.getElementById('startButton').style.display = 'block'
+        document.getElementById('audioUpload').style.display = 'block'
+        document.getElementById('volumeslider').style.display = 'block'
+        document.getElementById('vollabel').style.display = 'block'
+    
+                }
+            })
+            btnWrap.appendChild(btn)
+        })(opts[_pbi])
+    }
+
+    inner.appendChild(btnWrap)
+    pauseDiv.appendChild(inner)
+
+    if (!_pauseLogoImg.complete) {
+        _pauseLogoImg.onload = function() {
+            lctx.save()
+            lctx.beginPath()
+            lctx.arc(140, 140, 140, 0, Math.PI * 2)
+            lctx.clip()
+            lctx.drawImage(_pauseLogoImg, 0, 0, 280, 280)
+            lctx.restore()
+        }
+    }
+} 
+
+
+function buildSettingsPanel() {
+    pauseDiv.innerHTML = ''
+    var wrap = document.createElement('div')
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:18px;color:#fff'
+
+    var title = document.createElement('div')
+    title.style.cssText = 'font-size:12px;letter-spacing:3px;color:#444;font-family:Courier,monospace;margin-bottom:8px'
+    title.textContent = 'SETTINGS'
+    wrap.appendChild(title)
+
+    var vlabel = document.createElement('div')
+    vlabel.style.cssText = 'font-size:12px;color:#555;font-family:Courier,monospace'
+    vlabel.textContent = 'volume'
+    wrap.appendChild(vlabel)
+
+    var slider = document.createElement('input')
+    slider.type = 'range'
+    slider.min = 0
+    slider.max = 1
+    slider.step = 0.01
+    slider.value = document.getElementById('volumeslider').value
+    slider.style.cssText = 'width:260px;cursor:pointer;accent-color:#4a90d9'
+    slider.addEventListener('input', function() {
+        document.getElementById('volumeslider').value = slider.value
+        document.getElementById('vollabel').textContent = 'volume: ' + Math.round(slider.value * 100) + '%'
+        if (gainNode) gainNode.gain.value = slider.value
+        pct.textContent = Math.round(slider.value * 100) + '%'
+    })
+    wrap.appendChild(slider)
+
+    var pct = document.createElement('div')
+    pct.style.cssText = 'font-size:12px;color:#555;font-family:Courier,monospace'
+    pct.textContent = Math.round(slider.value * 100) + '%'
+    wrap.appendChild(pct)
+
+    var back = document.createElement('div')
+    back.style.cssText = 'margin-top:20px;font-size:15px;color:#555;cursor:pointer;font-family:Courier,monospace'
+    back.textContent = 'back'
+    back.addEventListener('mouseover', function() { back.style.color = '#aaa' })
+    back.addEventListener('mouseout', function() { back.style.color = '#555' })
+    back.addEventListener('click', function() { buildPauseMenu() })
+    wrap.appendChild(back)
+
+    pauseDiv.appendChild(wrap)
+}
+
+document.addEventListener('keydown', function(ekd) {
+    if (ekd.key != 'Escape') return
+    if (gamestate != 'playing' && !pauseOpen) return
+    if (!pauseOpen) {
+        pauseOpen = true
+        _pausedAt = Date.now()
+        if (audioCtx) audioCtx.suspend()
+        buildPauseMenu()
+        pauseDiv.style.display = 'flex'
+    } else {
+        pauseOpen = false
+        pauseDiv.style.display = 'none'
+        if (!audioLoaded) gamestartTime += Date.now() - _pausedAt
+        if (audioCtx) audioCtx.resume()
+    }
+})
+
+var _drawPreEsc = draw
+draw = function() {
+    var _fnow = Date.now()
+    if (pauseOpen && !audioLoaded) gamestartTime += _fnow - _pauseLastFrame
+    _pauseLastFrame = _fnow
+    _drawPreEsc()
+}
+
+var _lmEsc = loadMap
+loadMap = function(mapObj) {
+    _lmEsc(mapObj)
+    pauseOpen = false
+    pauseDiv.style.display = 'none'
+}
 
 draw()
 </script>
