@@ -11,9 +11,22 @@
                     align-items: center;
                     justify-content: center;
                     height: 100vh;
-                    cursor: none;
+                    cursor: default;
             }
-canvas { display: block; }
+#Canvas { 
+    display: block; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#Canvas { cursor: none; }
+
+#startButton, #audioUpload, #volumeslider, #vollabel {
+    position: relative;
+    z-index: 10;
+}
 
     #startButton { margin-top: 16px;
                     padding: 10px 32px;
@@ -50,6 +63,74 @@ canvas { display: block; }
     font-size: 12px;
     margin-top: 4px ;
 }
+body { overflow: hidden; }
+
+#startButton, #audioUpload, #volumeslider, #vollabel { display: none !important; }
+
+#mainMenuUI {
+    position: absolute; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 20; display: flex;
+    justify-content: center; align-items: center;
+    font-family: Arial, Helvetica, sans-serif;
+    pointer-events: none;
+
+}
+#mainMenuUI { pointer-events: none; }
+#centerMenuWrap, #topRightProfile { pointer-events: auto; }
+#centerMenuWrap {
+    position: relative; width: 250px; height: 250px;
+    display: flex; justify-content: center; align-items: center;
+    pointer-events: auto; cursor: none;
+}
+#centerLogo {
+    position: absolute; width: 180px; height: 180px;
+    background: #2a2a2a; border: 6px solid #ffffff; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center;
+    font-size: 42px; font-weight: bold; font-style: italic; color: #ffffff;
+    box-shadow: 0 0 50px 10px rgba(0,195,255,0.6), inset 0 0 20px rgba(0,0,0,0.5);
+    z-index: 10; transition: transform 0.3s ease;
+}
+.menu-btn {
+    position: absolute; border-radius: 12px;
+    display: flex; justify-content: center; align-items: center;
+    color: white; z-index: 5; opacity: 1;
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.btn-icon { width: 24px; height: 24px; object-fit: contain; }
+.btn-top    { width: 50px; height: 50px; background: #f06292; transform: translateY(-140px); }
+.btn-bottom { width: 50px; height: 50px; background: #e53935; transform: translateY(140px); }
+.btn-left   { width: 50px; height: 50px; background: #ffb300; transform: translateX(-140px); }
+.btn-right  {
+    width: 150px; height: 50px;
+    background: linear-gradient(90deg, #1e88e5, #0277bd);
+    transform: translateX(155px);
+    justify-content: flex-end; padding-right: 14px;
+    border: 2px solid rgba(0,195,255,0.5);
+    box-shadow: 0 0 20px 2px rgba(0,195,255,0.4);
+    overflow: hidden;
+}
+.btn-text { opacity: 1; margin-right: 8px; font-weight: bold; font-size: 13px; white-space: nowrap; }
+#centerMenuWrap:hover .btn-top    { transform: translateY(-155px) scale(1.1); }
+#centerMenuWrap:hover .btn-bottom { transform: translateY(155px) scale(1.1); }
+#centerMenuWrap:hover .btn-left   { transform: translateX(-155px) scale(1.1); }
+#centerMenuWrap:hover .btn-right  { transform: translateX(162px); filter: brightness(1.15); }
+#centerMenuWrap .btn-top:hover, #centerMenuWrap .btn-bottom:hover, #centerMenuWrap .btn-left:hover { filter: brightness(1.2); }
+#centerMenuWrap .btn-right:hover { background: linear-gradient(90deg, #2196f3, #0288d1); }
+
+#topRightProfile {
+    position: absolute; top: 20px; right: 30px;
+    display: flex; flex-direction: column; align-items: center;
+    pointer-events: auto; cursor: none; transition: transform 0.2s ease;
+}
+#topRightProfile:hover { transform: scale(1.05); }
+#menuAvatar { border-radius: 50%; border: 3px solid white; box-shadow: 0 0 15px rgba(0,195,255,0.5); }
+.profile-info { text-align: center; margin-top: 8px; }
+.p-name { color: white; font-weight: bold; font-size: 14px; text-shadow: 1px 1px 2px black; }
+.p-rank { color: #aaa; font-size: 11px; margin-top: 2px; }
+
+* { cursor: none !important; }
 
 </style>
 </head>
@@ -59,23 +140,72 @@ canvas { display: block; }
 <input type = "file" id = "audioUpload" accept="audio/*">
 <input type="range" id="volumeslider" min = "0" max = "1" step="0.01" value="0.8">
 <div id="vollabel">volume:80%</div>
+<video id="menuBg" autoplay loop muted playsinline
+    style="position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none">
+    <source src="assets/menubg.mp4" type="video/mp4">
+</video>
+<img id="menuBgImg" src="assets/menubg.jpg"
+    style="position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none">
+<div id="mainMenuUI" style="position:absolute;top:0;left:0;width:100vw;height:100vh;z-index:20;display:flex;justify-content:center;align-items:center;pointer-events:none;font-family:Arial">
+    <div id="topRightProfile">
+        <canvas id="menuAvatar" width="48" height="48"></canvas>
+        <div class="profile-info">
+            <div id="menuPlayerName" class="p-name">anon</div>
+            <div class="p-rank">Rank: 0 pp</div>
+        </div>
+    </div>
+    <div id="centerMenuWrap">
+    <div class="menu-btn btn-top"    id="btnProfile"><img src="assets/profile.png" width="22" height="22"></div>
+    <div class="menu-btn btn-right"  id="btnPlay"><span class="btn-text">Song Select</span><img src="assets/play.png" width="22" height="22"></div>
+    <div class="menu-btn btn-bottom" id="btnExit"><img src="assets/exit.png" width="22" height="22"></div>
+    <div class="menu-btn btn-left"   id="btnSettings"><img src="assets/settings.png" width="22" height="22"></div>
+    <div id="centerLogo"><img src="assets/prosu_logo.png" style="width:130px;height:130px;border-radius:50%;object-fit:cover"></div>
+</div>
+</div>
+
 <script>  
 
 var canvas = document.getElementById('Canvas')
 var ctx = canvas.getContext('2d')
+
+var logicalWidth = 800;
+var logicalHeight = 600;
+var cssScale = 1;
+var cssOffsetX = 0;
+var cssOffsetY = 0;
+
+function resizeCanvas() {
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+
+    cssScale = Math.min(window.innerWidth / logicalWidth, window.innerHeight/logicalHeight );
+    cssOffsetX = (window.innerWidth - logicalWidth * cssScale) / 2;
+    cssOffsetY = (window.innerHeight - logicalHeight * cssScale) / 2;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function getLogicalPos(e) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+            x: (e.clientX - rect.left - cssOffsetX) / cssScale,
+            y: (e.clientY - rect.top - cssOffsetY) / cssScale
+    };
+}
 
 var mouseX = 400
 var mouseY = 300
 var mouseMoved = false
 
 document.addEventListener('mousemove', function(e) {
-var rect = canvas.getBoundingClientRect()
-var scaleX = canvas.width / rect.width
-var scaleY = canvas.height / rect.height
-mouseX = (e.clientX - rect.left ) * scaleX
-mouseY = (e.clientY - rect.top ) * scaleY
-mouseMoved = true
-})
+var pos = getLogicalPos(e);
+mouseX = pos.x;
+mouseY = pos.y;
+mouseMoved = true;
+});
 
 
 var gamestartTime = Date.now()
@@ -247,11 +377,9 @@ function startAudio() {
 
 canvas.addEventListener('mousedown', function(e3) {
     if (gamestate != 'playing') return
-    var r3 = canvas.getBoundingClientRect()
-    var sx3 = canvas.width / r3.width
-    var sy3 = canvas.height / r3.height
-    var cx3 = (e3.clientX - r3.left) * sx3
-    var cy3 = (e3.clientY - r3.top) * sy3
+    var pos = getLogicalPos(e3);
+    var cx3 =pos.x;
+    var cy3 = pos.y;
 
     for (var i = activeCircles.length - 1; i >= 0; i--) {
         var c = activeCircles[i]
@@ -292,11 +420,9 @@ canvas.addEventListener('mousedown', function(e3) {
 
 canvas.addEventListener('click', function(e) {
 if (gamestate != 'results') return
-var rect = canvas.getBoundingClientRect()
-var scaleX = canvas.width / rect.width
-var scaleY = canvas.height / rect.height
-var cx = (e.clientX - rect.left) * scaleX
-var cy = (e.clientY - rect.top) * scaleY
+var pos = getLogicalPos(e);
+var cx = pos.x;
+var cy = pos.y;
 if ( cx > 240 && cx < 560 && cy > 495 && cy <535) {
   loadMap(map1)
   document.getElementById('startButton').style.display = 'none'
@@ -305,11 +431,9 @@ if ( cx > 240 && cx < 560 && cy > 495 && cy <535) {
 
 canvas.addEventListener('click', function(e) {
     if (gamestate != 'results') return
-    var rect = canvas.getBoundingClientRect()
-    var scaleX = canvas.width / rect.width
-    var scaleY = canvas.height / rect.height
-    var cx2 = (e.clientX - rect.left ) * scaleX
-    var cy2 = (e.clientY - rect.top ) * scaleY
+    var pos = getLogicalPos(e);
+    var cx2 = pos.x;
+    var cy2 = pos.y;
     if (cx2 > 240 && cx2 < 540 && cy2 > 495 && cy2 < 535) {
       startAudio()
     }
@@ -377,10 +501,14 @@ return 'NOOB'
 }
 
 function draw() {
-ctx.clearRect(0,0,800,600)
+    var dpr = window.devicePixelRatio || 1;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = typeof activeSkin !== 'undefined' ? activeSkin.bg: '#1a1a1a';
+    ctx.fillRect(0,0, canvas.width, canvas.height);
 
-ctx.fillStyle = '#1a1a1a'
-ctx.fillRect(0,0,800,600)
+    ctx.translate(cssOffsetX * dpr, cssOffsetY * dpr);
+    ctx.scale(cssScale * dpr, cssScale * dpr);
+
 if (gamestate == 'results') {
 drawResults()
 requestAnimationFrame(draw)
@@ -388,14 +516,19 @@ return
 }
 
 if (gamestate == 'menu') {
-ctx.font = 'bold 48px Helvetica'
-ctx.fillStyle = '#ffffff'
-ctx.textAlign = 'center'
-ctx.fillText('prosu!', 400, 200)
+ctx.clearRect(0, 0, canvas.width, canvas.height)
 ctx.beginPath()
 ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
 ctx.strokeStyle = '#ffffff'
-ctx.lineWidth = 2 
+ctx.lineWidth = 2
+ctx.stroke()
+ctx.beginPath()
+ctx.moveTo(mouseX - 5, mouseY)
+ctx.lineTo(mouseX + 5, mouseY)
+ctx.moveTo(mouseX, mouseY - 5)
+ctx.lineTo(mouseX, mouseY + 5)
+ctx.strokeStyle = '#ffffff'
+ctx.lineWidth = 1
 ctx.stroke()
 requestAnimationFrame(draw)
 return
@@ -778,10 +911,15 @@ backBtn.style.cssText = 'background:transparent;color:#666;border:1px solid #333
 
 backBtn.addEventListener('click', function() {
   ssDiv.style.display = 'none'
-  document.getElementById('startButton').style.display = 'block'
-  document.getElementById('audioUpload').style.display = 'block'
-  document.getElementById('volumeslider').style.display = 'block'
-  document.getElementById('vollabel').style.display = 'block'
+var _bgVid = document.getElementById('menuBg')
+var _bgImg = document.getElementById('menuBgImg')
+_bgVid.style.display = 'block'
+var _drawCursorSwap = draw
+draw = function() {
+    canvas.style.cursor = (gamestate == 'playing' || gamestate == 'results') ? 'none' : 'default'
+    _drawCursorSwap()
+}
+    showMainMenu()
 })
 
 rightPanel.appendChild(backBtn)
@@ -937,11 +1075,9 @@ ctx.fillText('[ Close ]', 400, 526)
 
 canvas.addEventListener('click', function(e) {
     if (gamestate != 'results') return 
-    var rect2 = canvas.getBoundingClientRect()
-    var sx2 = canvas.width / rect2.width
-    var sy2 = canvas.height / rect2.height
-    var lx = (e.clientX - rect2.left) * sx2 
-    var ly = (e.clientY - rect2.top) * sy2
+    var pos = getLogicalPos(e);
+    var lx = pos.x;
+    var ly = pos.y;
 
     if (!showingLeaderBoard) {
         if (lx > 240 && lx < 560 && ly > 542 && ly < 572) {
@@ -1189,11 +1325,7 @@ backbutton3.addEventListener('mouseover', function() { backbutton3.style.color =
 backbutton3.addEventListener('mouseout', function() { backbutton3.style.color = '#555'})
 backbutton3.addEventListener('click', function() {
       profileDiv.style.display = 'none'
-      document.getElementById('startButton').style.display = 'block'
-      document.getElementById('audioUpload').style.display = 'block'
-      document.getElementById('volumeslider').style.display = 'block'
-      document.getElementById('vollabel').style.display = 'block'
-      profilebutton.style.display = 'block'
+      showMainMenu()
 })
 footer2.appendChild(backbutton3)
 profileDiv.appendChild(footer2)
@@ -1300,7 +1432,7 @@ draw = function() {
 }
 
 var skinRowDiv = document.createElement('div')
-skinRowDiv.style.cssText = 'margin-top:10px;display:flex;gap:8px;align-items:center'
+skinRowDiv.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;align-items:center;z-index:25' 
 var skinLabelEl = document.createElement('span')
 skinLabelEl.style.cssText = 'color:#555;font-family:Courier,monospace;font-size:11px;margin-right:2px'
 skinLabelEl.textContent = 'skin:'
@@ -1428,10 +1560,6 @@ draw = function() {
 }
 buildSkinSwatches()
 
-setInterval(function() {
-    skinRowDiv.style.display = document.getElementById('startButton').style.display == 'none' ? 'none' : 'flex'
-}, 200)
-
 var mouseHeld = false
 document.addEventListener('mousedown', function() { mouseHeld = true })
 document.addEventListener('mouseup', function() {
@@ -1523,12 +1651,10 @@ var _spinActive = false
 
 document.addEventListener('mousemove', function(emv2) { 
     if (!_spinActive || gamestate != 'playing') return 
-    var rmv2 = canvas.getBoundingClientRect() 
-    var sxmv2 = canvas.width / rmv2.width 
-    var symv2 = canvas.height / rmv2.height 
-    var mxmv2 = (emv2.clientX - rmv2.left) * sxmv2 
-    var mymv2 = (emv2.clientY - rmv2.top) * symv2 
-    var angmv2 = Math.atan2(mymv2 - 300, mxmv2 - 400) 
+    var pos = getLogicalPos(emv2);
+    var mxmv2 = pos.x;
+    var mymv2 = pos.y;
+    var angmv2 = Math.atan2(mymv2 - 300, mxmv2 - 400)
     if (_spinLastAngle !== null) { 
         var deltamv2 = angmv2 - _spinLastAngle 
         if (deltamv2 > Math.PI) deltamv2 -= Math.PI * 2 
@@ -1541,7 +1667,7 @@ document.addEventListener('mousemove', function(emv2) {
 var _drawPreSpinner = draw 
 draw = function() { 
     _drawPreSpinner() 
-    if (gamestate != 'playing') return 
+    if (gamestate != 'playing') return
     var _spNow2 = Date.now() - gamestartTime 
     if (audioLoaded) _spNow2 = (audioCtx.currentTime - audioStartOffset) * 1000 
 
@@ -1893,7 +2019,7 @@ function buildPauseMenu() {
                     pauseDiv.style.display = 'none'
                     if (audioSrc) { try { audioSrc.stop() } catch(e) {} }
                     if (audioCtx) audioCtx.resume()
-                    gamestate = 'menu'
+                    showMainMenu()
                     buildSongSelect()
                     ssDiv.style.display = 'flex'
                 } else if (opt.label == 'Settings') {
@@ -1906,11 +2032,7 @@ function buildPauseMenu() {
         gamestate = 'menu'
         score = 0
         combo = 0
-        document.getElementById('startButton').style.display = 'block'
-        document.getElementById('audioUpload').style.display = 'block'
-        document.getElementById('volumeslider').style.display = 'block'
-        document.getElementById('vollabel').style.display = 'block'
-    
+        showMainMenu()
                 }
             })
             btnWrap.appendChild(btn)
@@ -2011,6 +2133,80 @@ loadMap = function(mapObj) {
     pauseDiv.style.display = 'none'
 }
 
+var _menuUI = document.getElementById('mainMenuUI')
+
+function hideMainMenu() {
+    _menuUI.style.display = 'none'
+    document.getElementById('menuBg').style.display = 'none'
+}
+
+function updateMenuAvatar() {
+    var mAv = document.getElementById('menuAvatar')
+    var mCtx = mAv.getContext('2d')
+    var pn = getPlayerName()
+    mCtx.clearRect(0, 0, 48, 48)
+    mCtx.fillStyle = '#4a90d9'
+    mCtx.beginPath()
+    mCtx.arc(24, 24, 24, 0, Math.PI * 2)
+    mCtx.fill()
+    mCtx.font = 'bold 20px Helvetica'
+    mCtx.fillStyle = '#ffffff'
+    mCtx.textAlign = 'center'
+    mCtx.textBaseline = 'middle'
+    mCtx.fillText(pn[0].toUpperCase(), 24, 24)
+}
+
+function showMainMenu() {
+    _menuUI.style.display = 'flex'
+    document.getElementById('menuBg').style.display = 'block'
+    document.getElementById('menuPlayerName').textContent = getPlayerName()
+    updateMenuAvatar()
+    gamestate = 'menu'
+}
+
+document.getElementById('btnPlay').addEventListener('click', function() {
+    hideMainMenu()
+    buildSongSelect()
+    ssDiv.style.display = 'flex'
+})
+
+document.getElementById('btnProfile').addEventListener('click', function() {
+    hideMainMenu()
+    buildProfileScreen()
+    profileDiv.style.display = 'block'
+})
+
+document.getElementById('topRightProfile').addEventListener('click', function() {
+    hideMainMenu()
+    buildProfileScreen()
+    profileDiv.style.display = 'block'
+})
+
+document.getElementById('btnSettings').addEventListener('click', function() {
+    hideMainMenu()
+    pauseOpen = true
+    buildSettingsPanel()
+    pauseDiv.style.display = 'flex'
+})
+
+document.getElementById('btnExit').addEventListener('click', function() {
+    alert('thanks for playing prosu!')
+})
+
+setInterval(function() {
+    skinRowDiv.style.display = gamestate == 'playing' || gamestate == 'results' ? 'none' : 'flex'
+}, 200)
+
+showMainMenu()
+var _cursorDiv = document.createElement('div')
+_cursorDiv.style.cssText = 'position:fixed;top:0;left:0;width:36px;height:36px;pointer-events:none;z-index:99999;transform:translate(-50%,-50%)'
+_cursorDiv.innerHTML = '<svg width="36" height="36" viewBox="0 0 36 36"><circle cx="18" cy="18" r="9" fill="none" stroke="white" stroke-width="2"/><line x1="13" y1="18" x2="23" y2="18" stroke="white" stroke-width="1"/><line x1="18" y1="13" x2="18" y2="23" stroke="white" stroke-width="1"/></svg>'
+document.body.appendChild(_cursorDiv)
+
+document.addEventListener('mousemove', function(_emc) {
+    _cursorDiv.style.left = _emc.clientX + 'px'
+    _cursorDiv.style.top = _emc.clientY + 'px'
+})
 draw()
 </script>
  
