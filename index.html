@@ -2207,6 +2207,217 @@ document.addEventListener('mousemove', function(_emc) {
     _cursorDiv.style.left = _emc.clientX + 'px'
     _cursorDiv.style.top = _emc.clientY + 'px'
 })
+
+var resultsDiv = document.createElement('div')
+resultsDiv.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:98;font-family:Arial;color:#fff;background:#111;box-sizing:border-box;overflow:hidden'
+document.body.appendChild(resultsDiv)
+
+
+function buildResultsScreen() {
+    resultsDiv.innerHTML = ''
+
+    var th = count300*300 + count100*100 + count50*50
+    var mh = total * 300
+    var acc = mh > 0 ? (th/mh) * 100 : 100
+    var grade = getRealGrade()
+
+var gradeColors = {
+    'GOATED': '#f0c040',
+    'A-Tier Elite': '#4a90d9',
+    'B-Tier Average': '#57c96e',
+    'C-Tier Hobbyiest': '#888888',
+    'Noob': '#e05555'
+}
+    var gradeCol = gradeColors[grade] || '#ffffff'
+
+    var bg = document.createElement('div')
+    bg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;background:linear-gradient(160deg,#0d0d0d 0%,#111820 100%)'
+    resultsDiv.appendChild(bg)
+
+    var accentBar = document.createElement('div')
+    accentBar.style.cssText ='position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,' + gradeCol + ',transparent)'
+    resultsDiv.appendChild(accentBar)
+
+    var wrap = document.createElement('div')
+    wrap.style.cssText = 'position:relative;z-index:1;display:flex;width:100%;height:100%;align-items:center;justify-content:center;gap:0'
+    resultsDiv.appendChild(wrap)
+
+
+    var left = document.createElement('div')
+    left.style.cssText = 'width:42%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #1e1e1e;padding:40px'
+
+var mapTitle = document.createElement('div')
+mapTitle.style.cssText = 'font-size:13px;color:#444;font-family:Courier,monospace;letter-spacing:2px;margin-bottom:6px;text-align:center'
+mapTitle.textContent = selectedMap.title.toUpperCase()
+left.appendChild(mapTitle)
+
+var mapArtist = document.createElement('div')
+mapArtist.style.cssText = 'font-size:11px;color:#333;font-family:Courier,monospace;margin-bottom:40px;text-align:center'
+mapArtist.textContent = 'by ' + selectedMap.artist
+left.appendChild(mapArtist)
+
+var gradeEl = document.createElement('div')
+gradeEl.style.cssText = 'font-size:96px;font-weight:bold;font-family:Helvetica,Arial;color:' + gradeCol + ';text-shadow:0 0 60px ' + gradeCol + '44;line-height:1;text-align:center;margin-bottom:8px'
+gradeEl.textContent = grade.split('-')[0].trim()
+left.appendChild(gradeEl)
+
+var gradeSub = document.createElement('div')
+gradeSub.style.cssText = 'font-size:13px;color:' + gradeCol + '88;font-family:Courier,monospace;letter-spacing:1px;margin-bottom:48px;text-align:center'
+gradeSub.textContent = grade
+left.appendChild(gradeSub)
+
+var diffBadge = document.createElement('div')
+var diffCol = selectedDiff.label == 'Hard' ? '#e05555' : selectedDiff.label == 'Easy' ? '#57c96e' : '#aaaaaa'
+diffBadge.style.cssText = 'border:1px solid ' + diffCol + ';color:' + diffCol + ';font-size:11px;font-family:Courier,monospace;padding:4px 14px;letter-spacing:1px'
+diffBadge.textContent = selectedDiff.label.toUpperCase()
+left.appendChild(diffBadge)
+
+wrap.appendChild(left)
+
+var right = document.createElement('div')
+    right.style.cssText = 'width:58%;height:100%;display:flex;flex-direction:column;justify-content:center;padding:48px 56px;box-sizing:border-box'
+
+    var scoreVal = document.createElement('div')
+    scoreVal.style.cssText = 'font-size:52px;font-weight:bold;color:#fff;letter-spacing:2px;margin-bottom:4px'
+    scoreVal.textContent = score.toLocaleString()
+    right.appendChild(scoreVal)
+
+    var scoreLabel = document.createElement('div')
+    scoreLabel.style.cssText = 'font-size:11px;color:#333;font-family:Courier,monospace;letter-spacing:2px;margin-bottom:36px'
+    scoreLabel.textContent = 'SCORE'
+    right.appendChild(scoreLabel)
+
+    var statsRow = document.createElement('div')
+    statsRow.style.cssText = 'display:flex;gap:32px;margin-bottom:36px'
+
+    var statItems = [
+        { label: 'ACCURACY', value: acc.toFixed(2) + '%' },
+        { label: 'MAX COMBO', value: maxCombo + 'x' }
+    ]
+
+    for (var _si = 0; _si < statItems.length; _si++) {
+        var stat = document.createElement('div')
+        var sVal = document.createElement('div')
+        sVal.style.cssText = 'font-size:26px;font-weight:bold;color:#ccc;margin-bottom:3px'
+        sVal.textContent = statItems[_si].value
+        var sLabel = document.createElement('div')
+        sLabel.style.cssText = 'font-size:10px;color:#333;font-family:Courier,monospace;letter-spacing:2px'
+        sLabel.textContent = statItems[_si].label
+        stat.appendChild(sVal)
+        stat.appendChild(sLabel)
+        statsRow.appendChild(stat)
+    }
+    right.appendChild(statsRow)
+
+    var hitRow = document.createElement('div')
+    hitRow.style.cssText = 'display:flex;gap:10px;margin-bottom:48px'
+
+    var hitItems = [
+        { label: '300', val: count300, col: '#4a90d9' },
+        { label: '100', val: count100, col: '#57c96e' },
+        { label: '50',  val: count50,  col: '#666' },
+        { label: 'miss', val: countMiss, col: '#e05555' }
+    ]
+
+    for (var _hi = 0; _hi < hitItems.length; _hi++) {
+        var chip = document.createElement('div')
+        chip.style.cssText = 'padding:6px 16px;background:#181818;border:1px solid #1e1e1e;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:52px'
+        var chipVal = document.createElement('div')
+        chipVal.style.cssText = 'font-size:18px;font-weight:bold;color:' + hitItems[_hi].col
+        chipVal.textContent = hitItems[_hi].val
+        var chipLabel = document.createElement('div')
+        chipLabel.style.cssText = 'font-size:10px;color:#333;font-family:Courier,monospace'
+        chipLabel.textContent = hitItems[_hi].label
+        chip.appendChild(chipVal)
+        chip.appendChild(chipLabel)
+        hitRow.appendChild(chip)
+    }
+    right.appendChild(hitRow)
+
+    var btnRow = document.createElement('div')
+    btnRow.style.cssText = 'display:flex;gap:10px'
+
+    var playAgainBtn = document.createElement('div')
+    playAgainBtn.style.cssText = 'padding:12px 28px;background:#4a90d9;color:#fff;font-size:14px;font-weight:bold;cursor:pointer;letter-spacing:1px;transition:background 0.15s'
+    playAgainBtn.textContent = 'PLAY AGAIN'
+    playAgainBtn.addEventListener('mouseover', function() { playAgainBtn.style.background = '#5aa0e9' })
+    playAgainBtn.addEventListener('mouseout', function() { playAgainBtn.style.background = '#4a90d9' })
+    playAgainBtn.addEventListener('click', function() {
+        resultsDiv.style.display = 'none'
+        loadMap(selectedMap)
+        startAudio()
+    })
+    btnRow.appendChild(playAgainBtn)
+
+    var songSelBtn = document.createElement('div')
+    songSelBtn.style.cssText = 'padding:12px 28px;background:transparent;color:#555;font-size:14px;cursor:pointer;border:1px solid #222;letter-spacing:1px;transition:color 0.15s,border-color 0.15s'
+    songSelBtn.textContent = 'SONG SELECT'
+    songSelBtn.addEventListener('mouseover', function() { songSelBtn.style.color='#aaa'; songSelBtn.style.borderColor='#444' })
+    songSelBtn.addEventListener('mouseout', function() { songSelBtn.style.color='#555'; songSelBtn.style.borderColor='#222' })
+    songSelBtn.addEventListener('click', function() {
+        resultsDiv.style.display = 'none'
+        showMainMenu()
+        buildSongSelect()
+        ssDiv.style.display = 'flex'
+    })
+    btnRow.appendChild(songSelBtn)
+
+    var lbBtn = document.createElement('div')
+    lbBtn.style.cssText = 'padding:12px 28px;background:transparent;color:#555;font-size:14px;cursor:pointer;border:1px solid #222;letter-spacing:1px;transition:color 0.15s,border-color 0.15s'
+    lbBtn.textContent = 'LEADERBOARD'
+    lbBtn.addEventListener('mouseover', function() { lbBtn.style.color='#aaa'; lbBtn.style.borderColor='#444' })
+    lbBtn.addEventListener('mouseout', function() { lbBtn.style.color='#555'; lbBtn.style.borderColor='#222' })
+    lbBtn.addEventListener('click', function() {
+        showingLeaderBoard = true
+    })
+    btnRow.appendChild(lbBtn)
+
+    right.appendChild(btnRow)
+    wrap.appendChild(right)
+}
+
+var _origDrawResults2 = drawResults
+drawResults = function() {
+    if (!scoreSaved) {
+        var th2 = count300*300 + count100*100 + count50*50
+        var mh2 = total * 300
+        var acc2 = mh2 > 0 ? (th2/mh2)*100 : 100
+        saveScore(selectedMap.id, selectedDiff.label, {
+            name: getPlayerName(),
+            score: score,
+            accuracy: parseFloat(acc2.toFixed(2)),
+            maxCombo: maxCombo,
+            grade: getRealGrade(),
+            counts: { 300: count300, 100: count100, 50: count50, miss: countMiss },
+            date: new Date().toISOString().slice(0,10)
+        })
+        scoreSaved = true
+        buildResultsScreen()
+        resultsDiv.style.display = 'block'
+    }
+
+ ctx.beginPath()
+    ctx.arc(mouseX, mouseY, 18, 0, Math.PI * 2)
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 2
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(mouseX - 5, mouseY)
+    ctx.lineTo(mouseX + 5, mouseY)
+    ctx.moveTo(mouseX, mouseY - 5)
+    ctx.lineTo(mouseX, mouseY + 5)
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 1
+    ctx.stroke()
+    if (showingLeaderBoard) drawLeaderBoard()
+}
+
+var _lmResults = loadMap
+loadMap = function(mapObj) {
+    _lmResults(mapObj)
+    resultsDiv.style.display = 'none'
+}
+
 draw()
 </script>
  
