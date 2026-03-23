@@ -1100,24 +1100,6 @@ loadMap = function(mapObj) {
  showingLeaderBoard = false
 }
 
-
-//this is for debugging T_T
-document.addEventListener('keydown', function(e) {
-    if (e.key != '`') return  
-    for (var di = 0; di < Circles.length; di++) {
-        Circles[di].dead = true
-        count300 += 1
-        score += 1
-        combo += 1
-        if (combo > maxCombo) maxCombo = combo
-    }
-
-activeCircles = []
-total = Circles.length
-alldone = true
-setTimeout(function() { gamestate = 'results' }, 100)
-})
-
 var profileDiv = document.createElement('div')
 profileDiv.style.cssText = 'display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#1a1a1a;z-index:99;font-family:Arial;color:#ffffff;box-sizing:border-box;overflow-y:auto'
 document.body.appendChild(profileDiv)
