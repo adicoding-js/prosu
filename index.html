@@ -79,12 +79,12 @@ body { overflow: hidden; }
 #mainMenuUI { pointer-events: none; }
 #centerMenuWrap, #topRightProfile { pointer-events: auto; }
 #centerMenuWrap {
-    position: relative; width: 250px; height: 250px;
+    position: relative; width: 340px; height: 340px;
     display: flex; justify-content: center; align-items: center;
     pointer-events: auto; cursor: none;
 }
 #centerLogo {
-    position: absolute; width: 180px; height: 180px;
+    position: absolute; width: 240px; height: 240px;
     background: #2a2a2a; border: 6px solid #ffffff; border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     font-size: 42px; font-weight: bold; font-style: italic; color: #ffffff;
@@ -99,13 +99,13 @@ body { overflow: hidden; }
     cursor: none; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 .btn-icon { width: 24px; height: 24px; object-fit: contain; }
-.btn-top    { width: 50px; height: 50px; background: #f06292; transform: translateY(-140px); }
-.btn-bottom { width: 50px; height: 50px; background: #e53935; transform: translateY(140px); }
-.btn-left   { width: 50px; height: 50px; background: #ffb300; transform: translateX(-140px); }
+.btn-top    { width: 50px; height: 50px; background: #f06292; transform: translateY(-190px); }
+.btn-bottom { width: 50px; height: 50px; background: #e53935; transform: translateY(190px); }
+.btn-left   { width: 50px; height: 50px; background: #ffb300; transform: translateX(-190px); }
 .btn-right  {
     width: 150px; height: 50px;
     background: linear-gradient(90deg, #1e88e5, #0277bd);
-    transform: translateX(155px);
+    transform: translateX(205px);
     justify-content: flex-end; padding-right: 14px;
     border: 2px solid rgba(0,195,255,0.5);
     box-shadow: 0 0 20px 2px rgba(0,195,255,0.4);
@@ -155,11 +155,11 @@ body { overflow: hidden; }
         </div>
     </div>
     <div id="centerMenuWrap">
-    <div class="menu-btn btn-top"    id="btnProfile"><img src="assets/profile.png" width="22" height="22"></div>
-    <div class="menu-btn btn-right"  id="btnPlay"><span class="btn-text">Song Select</span><img src="assets/play.png" width="22" height="22"></div>
-    <div class="menu-btn btn-bottom" id="btnExit"><img src="assets/exit.png" width="22" height="22"></div>
-    <div class="menu-btn btn-left"   id="btnSettings"><img src="assets/settings.png" width="22" height="22"></div>
-    <div id="centerLogo"><img src="assets/prosu_logo.png" style="width:130px;height:130px;border-radius:50%;object-fit:cover"></div>
+   <div class="menu-btn btn-top"    id="btnProfile" style="font-size:22px">👤</div>
+    <div class="menu-btn btn-right"  id="btnPlay"><span class="btn-text">Song Select</span><span style="font-size:20px">🎵</span></div>
+    <div class="menu-btn btn-bottom" id="btnExit" style="font-size:22px">❌</div>
+    <div class="menu-btn btn-left"   id="btnSettings" style="font-size:22px">⚙️</div>
+    <div id="centerLogo"><img src="assets/prosu_logo.png" style="width:180px;height:180px;border-radius:50%;object-fit:cover"></div>
 </div>
 </div>
 
@@ -503,8 +503,12 @@ return 'NOOB'
 function draw() {
     var dpr = window.devicePixelRatio || 1;
     ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle = typeof activeSkin !== 'undefined' ? activeSkin.bg: '#1a1a1a';
+if (gamestate != 'menu') { 
+    ctx.fillStyle = typeof activeSkin !== 'undefined' ? activeSkin.bg : '#1a1a1a';
     ctx.fillRect(0,0, canvas.width, canvas.height);
+} else {
+    ctx.clearRect(0,0, canvas.width, canvas.height); 
+}
 
     ctx.translate(cssOffsetX * dpr, cssOffsetY * dpr);
     ctx.scale(cssScale * dpr, cssScale * dpr);
