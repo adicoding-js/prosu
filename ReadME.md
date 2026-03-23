@@ -74,6 +74,9 @@ For spinners — spin your mouse in circles as fast as you can before the timer 
 - Maybe custom beatmap support
 
 ---
+- Disclaimer : Ai was used in this project, however it was no more than debugging and 1-2 features(which i couldn't figure out)
+
+---
 
 ## Made with 💖 by [@adicoding-js](https://github.com/adicoding-js/)
 ### Forever a Hack-Clubber 💖
